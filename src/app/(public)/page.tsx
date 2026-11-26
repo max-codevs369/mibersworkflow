@@ -112,11 +112,11 @@ export default async function HomePage() {
             title: true,
             imageUrl: true,
             lastMessageAt: true,
-            members: { select: { clearedAt: true, user: { select: { id: true, name: true, image: true } } } },
+            members: { select: { clearedAt: true, user: { select: { id: true, displayName: true, image: true } } } },
             messages: {
               orderBy: { createdAt: "desc" },
               take: 1,
-              select: { content: true, kind: true, deletedAt: true, createdAt: true, senderId: true, sender: { select: { name: true } } },
+              select: { content: true, kind: true, deletedAt: true, createdAt: true, senderId: true, sender: { select: { displayName: true } } },
             },
           },
         })
@@ -150,7 +150,7 @@ export default async function HomePage() {
     return {
       id: c.id,
       group: c.type === "GROUP",
-      title: c.type === "GROUP" ? c.title ?? "Grup" : other?.name ?? "Obrolan",
+      title: c.type === "GROUP" ? c.title ?? "Grup" : other?.displayName ?? "Obrolan",
       image: c.type === "GROUP" ? c.imageUrl : other?.image ?? null,
       at: c.lastMessageAt.toISOString(),
       unread: unreadMap.get(c.id) ?? 0,
@@ -161,7 +161,7 @@ export default async function HomePage() {
           ? "Pesan ini telah dihapus"
           : m.kind === "SYSTEM" || mine || c.type === "DIRECT"
             ? m.content.replace(/\s+/g, " ")
-            : `${m.sender.name.split(" ")[0]}: ${m.content.replace(/\s+/g, " ")}`,
+            : `${m.sender.displayName}: ${m.content.replace(/\s+/g, " ")}`,
     };
   });
 
@@ -414,7 +414,7 @@ for (const teman of kelas.anggota) {
                 <>
                   <span className="block truncate text-muted">{piketToday?.holiday ? `Libur: ${piketToday.holiday}` : "Tidak ada kuliah"}</span>
                   <span className="font-mono text-xs text-faint">
-                    berikutnya {piketNext.person.name.split(" ")[0]} · absen {piketNext.person.absenNo}
+                    berikutnya {piketNext.person.name} · absen {piketNext.person.absenNo}
                   </span>
                 </>
               ) : (

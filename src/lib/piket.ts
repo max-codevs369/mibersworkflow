@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { prisma } from "@/lib/prisma";
+import { shortName } from "@/lib/people";
 import { getSemesters, semesterForDay } from "@/lib/semesters";
 import { getSettings } from "@/lib/settings";
 import { isValidDateKey, type WeekdayKey } from "@/lib/format";
@@ -39,7 +40,7 @@ const loadBase = cache(async () => {
   const [rows, schedule, semesters] = await Promise.all([
     prisma.rosterEntry.findMany({
       orderBy: { absenNo: "asc" },
-      select: { id: true, absenNo: true, name: true, user: { select: { id: true, image: true, isActive: true } } },
+      select: { id: true, absenNo: true, name: true, user: { select: { id: true, image: true, isActive: true, displayName: true } } },
     }),
     prisma.schedule.findMany({
       orderBy: { startTime: "asc" },
@@ -79,7 +80,7 @@ export async function getPiketPlan(from: string, days: number) {
   const roster: PiketPerson[] = rows.map((r) => ({
     id: r.id,
     userId: r.user?.isActive ? r.user.id : null,
-    name: r.name,
+    name: r.user?.isActive && r.user.displayName ? r.user.displayName : shortName(r.name),
     image: r.user?.isActive ? r.user.image : null,
     absenNo: r.absenNo,
   }));

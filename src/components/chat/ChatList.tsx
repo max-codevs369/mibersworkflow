@@ -204,7 +204,7 @@ export default function ChatList({ chats, people }: { chats: ChatSummary[]; peop
                   const p = people.find((x) => x.id === id);
                   return p ? (
                     <span key={id} className="rounded-full bg-wa-panel px-3 py-1 text-sm text-wa-text">
-                      {p.name.split(" ")[0]}
+                      {p.name}
                     </span>
                   ) : null;
                 })}

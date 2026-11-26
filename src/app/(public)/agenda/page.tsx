@@ -337,7 +337,7 @@ export default async function AgendaPage({
                       <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-surface-3 px-1 font-mono tabular-nums">
                         {p.absenNo}
                       </span>
-                      {p.name.split(" ")[0]}
+                      {p.name}
                     </li>
                   ))}
                 </ol>

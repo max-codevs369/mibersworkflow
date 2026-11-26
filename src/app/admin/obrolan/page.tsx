@@ -47,14 +47,14 @@ export default async function AdminGroupsPage() {
         _count: { select: { messages: { where: { kind: "TEXT" } } } },
         members: {
           orderBy: { joinedAt: "asc" },
-          select: { user: { select: { id: true, name: true, image: true } } },
+          select: { user: { select: { id: true, displayName: true, image: true } } },
         },
       },
     }),
     prisma.user.findMany({
       where: { isActive: true },
-      orderBy: { name: "asc" },
-      select: { id: true, name: true, image: true, role: true },
+      orderBy: { displayName: "asc" },
+      select: { id: true, displayName: true, image: true, role: true },
     }),
     prisma.conversation.count({ where: { type: "DIRECT" } }),
     prisma.message.count({ where: { kind: "TEXT", createdAt: { gte: weekAgo } } }),
@@ -62,7 +62,7 @@ export default async function AdminGroupsPage() {
 
   const people = users.map((u) => ({
     id: u.id,
-    name: u.id === session.user.id ? `${u.name} (kamu)` : u.name,
+    name: u.id === session.user.id ? `${u.displayName} (kamu)` : u.displayName,
     image: u.image,
     role: ROLE_NAME[u.role as RoleKey] ?? "Anggota",
   }));
@@ -130,7 +130,7 @@ export default async function AdminGroupsPage() {
                 <div className="mt-4 flex items-center">
                   <div className="flex -space-x-2">
                     {g.members.slice(0, 6).map((m) => (
-                      <Avatar key={m.user.id} name={m.user.name} src={m.user.image} size={30} className="ring-2 ring-surface" />
+                      <Avatar key={m.user.id} name={m.user.displayName} src={m.user.image} size={30} className="ring-2 ring-surface" />
                     ))}
                   </div>
                   {g.members.length > 6 && <span className="ml-2 text-xs text-muted">+{g.members.length - 6}</span>}

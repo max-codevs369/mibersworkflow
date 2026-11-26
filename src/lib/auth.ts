@@ -21,10 +21,10 @@ function claimResendSlot(email: string) {
 
 async function deliverResetOtp(email: string, otp: string) {
   try {
-    const user = await prisma.user.findUnique({ where: { email }, select: { name: true, isActive: true } });
+    const user = await prisma.user.findUnique({ where: { email }, select: { displayName: true, isActive: true } });
     if (!user?.isActive) return;
     const settings = await getSettings();
-    const mail = resetOtpMail({ name: user.name.split(" ")[0] || user.name, site: settings.site_name, otp, minutes: OTP_MINUTES });
+    const mail = resetOtpMail({ name: user.displayName, site: settings.site_name, otp, minutes: OTP_MINUTES });
     await sendMail({ to: email, ...mail });
   } catch (e) {
     console.error("[mail] gagal mengirim OTP reset:", e instanceof Error ? e.message : e);
@@ -70,6 +70,12 @@ export const auth = betterAuth({
         type: "boolean",
         required: false,
         defaultValue: true,
+        input: false,
+      },
+      displayName: {
+        type: "string",
+        required: false,
+        defaultValue: "",
         input: false,
       },
     },

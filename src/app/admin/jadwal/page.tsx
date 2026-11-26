@@ -100,7 +100,7 @@ export default async function AdminSchedulePage({ searchParams }: { searchParams
   const nextNumber = (semesters.at(-1)?.number ?? 0) + 1;
   const [schedule, users, settings, { plan, roster }] = await Promise.all([
     current ? prisma.schedule.findMany({ where: { semesterId: current.id }, orderBy: { startTime: "asc" } }) : Promise.resolve([]),
-    prisma.user.findMany({ where: { isActive: true }, orderBy: { name: "asc" }, select: { id: true, name: true } }),
+    prisma.user.findMany({ where: { isActive: true }, orderBy: { displayName: "asc" }, select: { id: true, displayName: true } }),
     getSettings(),
     getPiketPlan(todayKey, 21),
   ]);
@@ -325,7 +325,7 @@ export default async function AdminSchedulePage({ searchParams }: { searchParams
                         <option value="">Belum punya akun</option>
                         {users.map((u) => (
                           <option key={u.id} value={u.id}>
-                            {u.name}
+                            {u.displayName}
                           </option>
                         ))}
                       </select>

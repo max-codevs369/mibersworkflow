@@ -8,7 +8,7 @@ export const getSession = cache(async () => {
   try {
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session || session.user.isActive === false) return null;
-    return session;
+    return { ...session, user: { ...session.user, displayName: session.user.displayName || session.user.name } };
   } catch {
     return null;
   }

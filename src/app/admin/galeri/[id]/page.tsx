@@ -24,7 +24,7 @@ export default async function AdminAlbumPage({ params }: { params: Promise<{ id:
     include: {
       media: {
         orderBy: [{ status: "asc" }, { createdAt: "desc" }],
-        include: { uploader: { select: { name: true } } },
+        include: { uploader: { select: { displayName: true } } },
       },
     },
   });
@@ -118,7 +118,7 @@ export default async function AdminAlbumPage({ params }: { params: Promise<{ id:
                       <p className="truncate text-xs text-muted" title={m.caption ?? ""}>
                         {m.caption || <span className="italic text-faint">tanpa keterangan</span>}
                       </p>
-                      <p className="truncate text-[11px] text-faint">oleh {m.uploader.name}</p>
+                      <p className="truncate text-[11px] text-faint">oleh {m.uploader.displayName}</p>
                       <div className="mt-2 flex gap-1">
                         {m.status === "PENDING" ? (
                           <>

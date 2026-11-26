@@ -25,11 +25,11 @@ async function getAlbum(slug: string, loggedIn: boolean) {
   return prisma.album.findFirst({
     where: { slug, ...(loggedIn ? {} : { visibility: "PUBLIC" }) },
     include: {
-      creator: { select: { name: true } },
+      creator: { select: { displayName: true } },
       media: {
         where: { status: "APPROVED" },
         orderBy: { createdAt: "asc" },
-        include: { uploader: { select: { name: true } } },
+        include: { uploader: { select: { displayName: true } } },
       },
     },
   });
@@ -91,10 +91,10 @@ export default async function AlbumPage({ params }: Params) {
     url: m.url,
     type: m.type,
     caption: m.caption,
-    by: m.uploader.name,
+    by: m.uploader.displayName,
   }));
   if (album.coverUrl && !items.some((m) => m.url === album.coverUrl)) {
-    items.unshift({ id: `cover-${album.id}`, url: album.coverUrl, type: "PHOTO", caption: null, by: album.creator.name });
+    items.unshift({ id: `cover-${album.id}`, url: album.coverUrl, type: "PHOTO", caption: null, by: album.creator.displayName });
   }
 
   return (
@@ -115,7 +115,7 @@ export default async function AlbumPage({ params }: Params) {
             <p className="prose-safe mt-3 whitespace-pre-line leading-relaxed text-muted">{album.description}</p>
           )}
           <p className="mt-3 flex flex-wrap items-center gap-2 text-sm text-faint">
-            {items.length} file · dibuat oleh {album.creator.name}
+            {items.length} file · dibuat oleh {album.creator.displayName}
             {album.visibility === "MEMBERS_ONLY" && (
               <span className={cx(badge, "bg-surface-3 text-muted")}>
                 <Lock size={11} /> KHUSUS ANGGOTA

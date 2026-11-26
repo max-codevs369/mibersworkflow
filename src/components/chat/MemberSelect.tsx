@@ -51,7 +51,7 @@ export default function MemberSelect({
                   <X size={11} strokeWidth={3} />
                 </span>
               </span>
-              <span className="w-full truncate text-[11px] text-wa-meta">{p.name.split(" ")[0]}</span>
+              <span className="w-full truncate text-[11px] text-wa-meta">{p.name}</span>
             </button>
           ))}
         </div>

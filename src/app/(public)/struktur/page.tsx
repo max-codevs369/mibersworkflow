@@ -21,7 +21,7 @@ type Member = {
   userId: string | null;
   displayName: string | null;
   photoUrl: string | null;
-  user: { name: string; image: string | null } | null;
+  user: { displayName: string; image: string | null } | null;
 };
 
 export default async function StructurePage({ searchParams }: { searchParams: Promise<{ periode?: string }> }) {
@@ -41,7 +41,7 @@ export default async function StructurePage({ searchParams }: { searchParams: Pr
             userId: true,
             displayName: true,
             photoUrl: true,
-            user: { select: { name: true, image: true } },
+            user: { select: { displayName: true, image: true } },
           },
         }),
       ])
@@ -131,7 +131,7 @@ function Branch({ node }: { node: OrgNode<Member> }) {
     <li style={{ ["--d" as string]: node.depth }}>
       <div className="org-node flex justify-center gap-4">
         {people.map((m, i) => {
-          const name = m ? m.displayName || m.user?.name || "—" : "Belum diisi";
+          const name = m ? m.displayName || m.user?.displayName || "—" : "Belum diisi";
           return (
             <figure
               key={m?.id ?? i}
@@ -178,7 +178,7 @@ function MobileBranch({ node }: { node: OrgNode<Member> }) {
     <li style={{ ["--d" as string]: node.depth }}>
       <div className="grid gap-3">
         {people.map((m, i) => {
-          const name = m ? m.displayName || m.user?.name || "—" : "Belum diisi";
+          const name = m ? m.displayName || m.user?.displayName || "—" : "Belum diisi";
           const inner = (
             <>
               <span className="polaroid polaroid-sm relative flex-none" style={{ ["--r" as string]: tilt(m?.id ?? node.position.id) }}>

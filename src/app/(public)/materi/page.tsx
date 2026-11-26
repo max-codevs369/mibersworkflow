@@ -43,7 +43,7 @@ export default async function MaterialsPage({
         ...searchWhere,
       },
       orderBy: { createdAt: "desc" },
-      include: { uploader: { select: { name: true } } },
+      include: { uploader: { select: { displayName: true } } },
     }),
     getSubjects(),
   ]);
@@ -139,7 +139,7 @@ export default async function MaterialsPage({
                     </span>
                     <span className="block truncate font-semibold transition group-hover:text-brand">{m.title}</span>
                     <span className="block truncate text-sm text-muted">
-                      {[m.category, m.uploader.name, shortDate(m.createdAt)].filter(Boolean).join(" · ")}
+                      {[m.category, m.uploader.displayName, shortDate(m.createdAt)].filter(Boolean).join(" · ")}
                     </span>
                   </span>
                   <span className="flex-none text-faint transition group-hover:text-brand">

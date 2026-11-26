@@ -45,8 +45,8 @@ export default async function AdminWallPage({ searchParams }: { searchParams: Pr
       include: {
         _count: { select: { reports: true, reactions: true } },
         reports: { select: { reason: true }, take: 3, orderBy: { createdAt: "desc" } },
-        moderatedBy: { select: { name: true } },
-        author: { select: { name: true } },
+        moderatedBy: { select: { displayName: true } },
+        author: { select: { displayName: true } },
       },
     }),
     prisma.note.groupBy({ by: ["status"], _count: true }),
@@ -99,7 +99,7 @@ export default async function AdminWallPage({ searchParams }: { searchParams: Pr
                 <div className="flex flex-wrap items-center gap-1.5 text-sm">
                   <span className="font-semibold">
                     {n.isAnonymous ? "Anonim" : n.authorName}
-                    {n.isAnonymous && n.author && <span className="font-normal text-faint"> ({n.author.name})</span>}
+                    {n.isAnonymous && n.author && <span className="font-normal text-faint"> ({n.author.displayName})</span>}
                   </span>
                   <span className={cx(badge, n.authorKind === "GUEST" ? "bg-surface-3 text-muted" : "bg-brand/15 text-brand")}>
                     {ROLE_LABEL[n.authorKind].toUpperCase()}
@@ -119,7 +119,7 @@ export default async function AdminWallPage({ searchParams }: { searchParams: Pr
                   </div>
                 )}
                 {n.moderatedBy && tab !== "PENDING" && (
-                  <p className="text-xs text-faint">Dimoderasi oleh {n.moderatedBy.name}</p>
+                  <p className="text-xs text-faint">Dimoderasi oleh {n.moderatedBy.displayName}</p>
                 )}
 
                 <div className="mt-auto flex flex-wrap gap-1.5 border-t border-line pt-3">

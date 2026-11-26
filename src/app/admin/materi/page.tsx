@@ -70,7 +70,7 @@ export default async function AdminMaterialsPage() {
   const [items, subjects] = await Promise.all([
     prisma.material.findMany({
       orderBy: { createdAt: "desc" },
-      include: { uploader: { select: { name: true } } },
+      include: { uploader: { select: { displayName: true } } },
     }),
     getSubjects(),
   ]);
@@ -106,7 +106,7 @@ export default async function AdminMaterialsPage() {
                     {m.title}
                   </a>
                   <p className="truncate text-sm text-muted">
-                    {[m.subject ?? "Umum", m.category, m.uploader.name, shortDate(m.createdAt)].filter(Boolean).join(" · ")}
+                    {[m.subject ?? "Umum", m.category, m.uploader.displayName, shortDate(m.createdAt)].filter(Boolean).join(" · ")}
                   </p>
                 </div>
                 <div className="flex flex-none gap-1.5">

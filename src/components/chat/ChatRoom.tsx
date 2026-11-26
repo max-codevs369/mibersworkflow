@@ -267,7 +267,7 @@ export default function ChatRoom({
 
   const others = members.filter((m) => m.id !== me.id);
   const subtitle = chat.group
-    ? [...others.map((m) => m.name.split(" ")[0]).slice(0, 10), "Kamu"].join(", ")
+    ? [...others.map((m) => m.name).slice(0, 10), "Kamu"].join(", ")
     : chat.otherRole ?? "";
   const unseen = !atBottom ? list.length - seen : 0;
   const avatar = (size: number) =>
@@ -380,7 +380,7 @@ export default function ChatRoom({
 
           {list.length === 0 && (
             <p className="mx-auto mt-6 w-fit max-w-[90%] rounded-lg bg-wa-chip px-4 py-2 text-center text-[13px] text-wa-meta">
-              Belum ada pesan. Sapa {chat.group ? "grup ini" : chat.title.split(" ")[0]} duluan 👋
+              Belum ada pesan. Sapa {chat.group ? "grup ini" : chat.title} duluan 👋
             </p>
           )}
 
@@ -825,7 +825,7 @@ export default function ChatRoom({
                           if (!res?.error) router.refresh();
                           return res;
                         }}
-                        title={`Keluarkan ${m.name.split(" ")[0]}?`}
+                        title={`Keluarkan ${m.name}?`}
                         description="Dia tidak akan bisa membaca atau mengirim pesan di grup ini lagi."
                         confirmLabel="Keluarkan"
                         ariaLabel={`Keluarkan ${m.name}`}

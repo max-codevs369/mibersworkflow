@@ -34,20 +34,20 @@ export default async function AdminStructurePage({ searchParams }: { searchParam
       orderBy: [{ level: "asc" }, { sortOrder: "asc" }, { title: "asc" }],
       include: { _count: { select: { members: true } } },
     }),
-    prisma.user.findMany({ where: { isActive: true }, orderBy: { name: "asc" }, select: { id: true, name: true } }),
+    prisma.user.findMany({ where: { isActive: true }, orderBy: { displayName: "asc" }, select: { id: true, displayName: true } }),
   ]);
   const period = periods.find((p) => p.id === sp.periode) ?? periods.find((p) => p.isActive) ?? periods[0];
   const members = period
     ? await prisma.organizationMember.findMany({
         where: { periodId: period.id },
         orderBy: [{ position: { level: "asc" } }, { position: { sortOrder: "asc" } }, { sortOrder: "asc" }],
-        include: { position: true, user: { select: { name: true, image: true } } },
+        include: { position: true, user: { select: { displayName: true, image: true } } },
       })
     : [];
 
   const year = new Date().getFullYear();
   const positionOptions = positions.map((p) => ({ value: p.id, label: `${p.title} (tingkat ${p.level})` }));
-  const userOptions = [{ value: "", label: "— tidak terhubung ke akun —" }, ...users.map((u) => ({ value: u.id, label: u.name }))];
+  const userOptions = [{ value: "", label: "— tidak terhubung ke akun —" }, ...users.map((u) => ({ value: u.id, label: u.displayName }))];
 
   const memberFields = (m?: (typeof members)[number]) => (
     <>
@@ -297,7 +297,7 @@ export default async function AdminStructurePage({ searchParams }: { searchParam
             ) : (
               <ul className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
                 {members.map((m) => {
-                  const name = m.displayName || m.user?.name || "—";
+                  const name = m.displayName || m.user?.displayName || "—";
                   return (
                     <li key={m.id} className="flex items-center gap-3 rounded-xl bg-surface-2 p-3">
                       <Avatar name={name} src={m.photoUrl || m.user?.image} size={44} />

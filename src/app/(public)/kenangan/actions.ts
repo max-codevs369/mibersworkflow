@@ -67,7 +67,7 @@ export async function contributeMedia(albumId: string, _prev: ActionState, formD
       adminsOnly: true,
       exceptUserId: session.user.id,
       type: "moderation",
-      message: `${session.user.name} mengunggah ${saved} foto ke album “${album.title}”.`,
+      message: `${session.user.displayName} mengunggah ${saved} foto ke album “${album.title}”.`,
       link: "/admin/galeri/moderasi",
     });
   }

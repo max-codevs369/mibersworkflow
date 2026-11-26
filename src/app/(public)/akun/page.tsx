@@ -37,10 +37,10 @@ export default async function AccountPage() {
                 <ImagePicker name="photo" defaultUrl={user.image} removable maxDim={600} aspect="aspect-square" crop={1} cropRound label="Pilih foto" />
               </Field>
               <Row>
-                <Field label="Nama lengkap">
+                <Field label="Nama lengkap" hint="Hanya tampil di halaman profilmu.">
                   <TextInput name="name" required defaultValue={user.name} maxLength={80} />
                 </Field>
-                <Field label="Nama panggilan">
+                <Field label="Nama panggilan" hint="Nama ini yang tampil di seluruh website. Kosong = nama depan.">
                   <TextInput name="nickname" defaultValue={user.profile?.nickname ?? ""} maxLength={30} />
                 </Field>
               </Row>

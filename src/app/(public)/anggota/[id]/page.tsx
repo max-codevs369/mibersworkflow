@@ -54,16 +54,16 @@ type Params = { params: Promise<{ id: string }> };
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const u = await prisma.user.findFirst({
     where: { id: (await params).id, isActive: true },
-    select: { name: true, profile: { select: { bio: true } } },
+    select: { name: true, displayName: true, profile: { select: { bio: true } } },
   });
   if (!u) return { title: "Anggota tidak ditemukan", robots: { index: false, follow: false } };
-  const description = u.profile?.bio?.trim() || `Profil ${u.name}, anggota kelas Mibers Duo Anam.`;
+  const description = u.profile?.bio?.trim() || `Profil ${u.displayName} (${u.name}), anggota kelas Mibers Duo Anam.`;
   const url = `/anggota/${(await params).id}`;
   return {
-    title: u.name,
+    title: u.displayName,
     description,
     alternates: { canonical: url },
-    openGraph: { type: "profile", title: u.name, description, url },
+    openGraph: { type: "profile", title: u.displayName, description, url },
   };
 }
 
@@ -77,6 +77,7 @@ export default async function MemberProfilePage({ params }: Params) {
     select: {
       id: true,
       name: true,
+      displayName: true,
       image: true,
       role: true,
       createdAt: true,
@@ -108,15 +109,15 @@ export default async function MemberProfilePage({ params }: Params) {
     }),
     prisma.user.findMany({
       where: { isActive: true, role: user.role === "MEMBER" ? "MEMBER" : { not: "MEMBER" } },
-      orderBy: { name: "asc" },
-      select: { id: true, name: true },
+      orderBy: { displayName: "asc" },
+      select: { id: true, displayName: true },
     }),
     absenNo ? nextDutyOf(user.id, dateKey(now)) : Promise.resolve(null),
   ]);
 
   const p = user.profile;
-  const tone = avatarTone(user.name);
-  const first = (p?.nickname || user.name).split(" ")[0];
+  const tone = avatarTone(user.displayName);
+  const first = user.displayName;
   const me = session?.user.id === user.id;
   const ig = instagramUrl(p?.instagram);
   const wa = session ? whatsappUrl(p?.phone) : null;
@@ -146,7 +147,7 @@ export default async function MemberProfilePage({ params }: Params) {
           { label: "Beranda", href: "/" },
           { label: "Tentang kami", href: "/tentang" },
           { label: "Anggota", href: "/tentang#anggota" },
-          { label: user.name },
+          { label: user.displayName },
         ]}
       />
 
@@ -169,7 +170,7 @@ export default async function MemberProfilePage({ params }: Params) {
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
               <div className="w-fit rounded-full p-1.5" style={{ background: `conic-gradient(from 200deg, ${tone}, transparent 40%, ${tone})` }}>
                 <div className="rounded-full bg-surface p-1">
-                  <Avatar name={user.name} src={user.image} size={112} />
+                  <Avatar name={user.displayName} src={user.image} size={112} />
                 </div>
               </div>
               <div className="min-w-0 pb-1">
@@ -186,8 +187,10 @@ export default async function MemberProfilePage({ params }: Params) {
                     <span className="rounded-full border border-line px-2.5 py-0.5 text-xs text-muted">{p.position}</span>
                   )}
                 </div>
-                <h1 className="prose-safe mt-2 text-3xl font-extrabold leading-tight sm:text-4xl">{user.name}</h1>
-                {p?.nickname && <p className="mt-0.5 text-muted">dipanggil <span className="font-semibold text-fg">“{p.nickname}”</span></p>}
+                <h1 className="prose-safe mt-2 text-3xl font-extrabold leading-tight sm:text-4xl">{user.displayName}</h1>
+                <p className="prose-safe mt-0.5 text-muted">
+                  Nama lengkap <span className="font-semibold text-fg">{user.name}</span>
+                </p>
               </div>
             </div>
 
@@ -360,7 +363,7 @@ export default async function MemberProfilePage({ params }: Params) {
               <ArrowLeft size={18} className="text-muted transition group-hover:-translate-x-1" />
               <span className="min-w-0">
                 <span className="block text-xs text-faint">Sebelumnya</span>
-                <span className="block truncate font-medium">{prev.name}</span>
+                <span className="block truncate font-medium">{prev.displayName}</span>
               </span>
             </Link>
           ) : (
@@ -373,7 +376,7 @@ export default async function MemberProfilePage({ params }: Params) {
             >
               <span className="min-w-0">
                 <span className="block text-xs text-faint">Berikutnya</span>
-                <span className="block truncate font-medium">{next.name}</span>
+                <span className="block truncate font-medium">{next.displayName}</span>
               </span>
               <ArrowRight size={18} className="text-muted transition group-hover:translate-x-1" />
             </Link>

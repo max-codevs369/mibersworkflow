@@ -23,7 +23,7 @@ function refresh() {
 async function validMembers(fd: FormData) {
   const ids = [...new Set(fd.getAll("members").map(String).filter(Boolean))];
   if (!ids.length) return [];
-  const users = await prisma.user.findMany({ where: { id: { in: ids }, isActive: true }, select: { id: true, name: true } });
+  const users = await prisma.user.findMany({ where: { id: { in: ids }, isActive: true }, select: { id: true, displayName: true } });
   return users;
 }
 
@@ -47,12 +47,12 @@ export async function createGroup(_prev: ActionState, fd: FormData): Promise<Act
     },
     select: { id: true },
   });
-  await systemMessage(group.id, session.user.id, `${session.user.name} membuat grup “${parsed.data.title}”`);
-  const added = users.filter((u) => u.id !== session.user.id).map((u) => u.name.split(" ")[0]);
-  if (added.length) await systemMessage(group.id, session.user.id, `${session.user.name} menambahkan ${namesList(added)}`);
+  await systemMessage(group.id, session.user.id, `${session.user.displayName} membuat grup “${parsed.data.title}”`);
+  const added = users.filter((u) => u.id !== session.user.id).map((u) => u.displayName);
+  if (added.length) await systemMessage(group.id, session.user.id, `${session.user.displayName} menambahkan ${namesList(added)}`);
   await notifyUsers(
     users.filter((u) => u.id !== session.user.id).map((u) => u.id),
-    { type: "group", message: `${session.user.name} menambahkanmu ke grup “${parsed.data.title}”`, link: `/obrolan/${group.id}` }
+    { type: "group", message: `${session.user.displayName} menambahkanmu ke grup “${parsed.data.title}”`, link: `/obrolan/${group.id}` }
   );
 
   await audit(session.user.id, "group.create", "Conversation", group.id);
@@ -64,7 +64,7 @@ export async function updateGroup(id: string, _prev: ActionState, fd: FormData):
   const session = await requireAdmin();
   const group = await prisma.conversation.findFirst({
     where: { id, type: "GROUP" },
-    select: { title: true, createdBy: true, members: { select: { userId: true, user: { select: { name: true } } } } },
+    select: { title: true, createdBy: true, members: { select: { userId: true, user: { select: { displayName: true } } } } },
   });
   if (!group) return { error: "Grup sudah dihapus." };
 
@@ -92,13 +92,13 @@ export async function updateGroup(id: string, _prev: ActionState, fd: FormData):
     ...(remove.length ? [prisma.conversationMember.deleteMany({ where: { conversationId: id, userId: { in: remove.map((m) => m.userId) } } })] : []),
   ]);
 
-  const actor = session.user.name;
+  const actor = session.user.displayName;
   if (group.title !== parsed.data.title) {
     await systemMessage(id, session.user.id, `${actor} mengubah nama grup menjadi “${parsed.data.title}”`);
   }
-  if (add.length) await systemMessage(id, session.user.id, `${actor} menambahkan ${namesList(add.map((u) => u.name.split(" ")[0]))}`);
+  if (add.length) await systemMessage(id, session.user.id, `${actor} menambahkan ${namesList(add.map((u) => u.displayName))}`);
   if (remove.length) {
-    await systemMessage(id, session.user.id, `${actor} mengeluarkan ${namesList(remove.map((m) => m.user.name.split(" ")[0]))}`);
+    await systemMessage(id, session.user.id, `${actor} mengeluarkan ${namesList(remove.map((m) => m.user.displayName))}`);
   }
   await notifyUsers(
     add.filter((u) => u.id !== session.user.id).map((u) => u.id),

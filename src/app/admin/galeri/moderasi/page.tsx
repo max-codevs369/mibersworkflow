@@ -17,7 +17,7 @@ export default async function MediaModerationPage() {
     where: { status: "PENDING" },
     orderBy: { createdAt: "asc" },
     take: 120,
-    include: { uploader: { select: { name: true } }, album: { select: { id: true, title: true } } },
+    include: { uploader: { select: { displayName: true } }, album: { select: { id: true, title: true } } },
   });
   const now = new Date();
 
@@ -58,7 +58,7 @@ export default async function MediaModerationPage() {
                 )}
               </a>
               <figcaption className="p-3">
-                <p className="truncate text-sm font-semibold">{m.uploader.name}</p>
+                <p className="truncate text-sm font-semibold">{m.uploader.displayName}</p>
                 <p className="truncate text-xs text-muted">
                   ke{" "}
                   <Link href={`/admin/galeri/${m.album.id}`} className="hover:text-brand">

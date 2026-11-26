@@ -49,7 +49,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
     prisma.auditLog.findMany({
       orderBy: { createdAt: "desc" },
       take: 8,
-      include: { user: { select: { name: true, image: true } } },
+      include: { user: { select: { displayName: true, image: true } } },
     }),
     prisma.note.findMany({ where: { status: "PENDING" }, orderBy: { createdAt: "desc" }, take: 3 }),
   ]);
@@ -66,7 +66,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
     { label: "Pesan 7 hari", value: posts, icon: <MessagesSquare size={18} /> },
   ];
   const totalQueue = pendingNotes + pendingMedia + reported;
-  const firstName = session.user.name.split(" ")[0];
+  const firstName = session.user.displayName;
 
   return (
     <div>
@@ -196,9 +196,9 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
             <ul className="mt-3 grid">
               {logs.map((l) => (
                 <li key={l.id} className="flex items-center gap-3 border-b border-line py-2.5 last:border-0">
-                  <Avatar name={l.user?.name ?? "Sistem"} src={l.user?.image} size={30} />
+                  <Avatar name={l.user?.displayName ?? "Sistem"} src={l.user?.image} size={30} />
                   <p className="min-w-0 flex-1 text-sm">
-                    <span className="font-semibold">{l.user?.name ?? "Sistem"}</span>{" "}
+                    <span className="font-semibold">{l.user?.displayName ?? "Sistem"}</span>{" "}
                     <span className="text-muted">{AUDIT_LABEL[l.action] ?? l.action}</span>
                   </p>
                   <span className="flex-none text-xs text-faint">{relativeTime(l.createdAt, now)}</span>

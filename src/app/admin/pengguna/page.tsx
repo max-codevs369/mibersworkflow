@@ -39,7 +39,7 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
   const [users, grouped, inactive] = await Promise.all([
     prisma.user.findMany({
       where,
-      orderBy: [{ isActive: "desc" }, { role: "asc" }, { name: "asc" }],
+      orderBy: [{ isActive: "desc" }, { role: "asc" }, { displayName: "asc" }],
       include: { sessions: { orderBy: { updatedAt: "desc" }, take: 1, select: { updatedAt: true } } },
     }),
     prisma.user.groupBy({ by: ["role"], _count: true }),
@@ -136,10 +136,10 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
             return (
               <div key={u.id} className={cx("flex flex-col gap-3 p-4 sm:flex-row sm:items-center", !u.isActive && "opacity-55")}>
                 <div className="flex min-w-0 flex-1 items-center gap-3">
-                  <Avatar name={u.name} src={u.image} size={40} />
+                  <Avatar name={u.displayName} src={u.image} size={40} />
                   <div className="min-w-0">
                     <p className="flex flex-wrap items-center gap-1.5 font-semibold">
-                      <span className="truncate">{u.name}</span>
+                      <span className="truncate">{u.displayName}</span>
                       {me && <span className="text-xs font-normal text-faint">(kamu)</span>}
                       <span className={cx(badge, ROLE_TONE[r])}>{ROLE_NAME[r].toUpperCase()}</span>
                       {!u.isActive && <span className={cx(badge, "bg-danger/15 text-danger")}>NONAKTIF</span>}
@@ -153,7 +153,7 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
                 </div>
                 <div className="flex flex-none gap-1.5 pl-[52px] sm:pl-0">
                   <FormDialog
-                    title={`Ubah akun ${u.name}`}
+                    title={`Ubah akun ${u.displayName}`}
                     trigger={<Pencil size={16} />}
                     triggerLabel="Ubah"
                     triggerClassName={btn.icon}
@@ -171,7 +171,7 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
                     {me && <input type="hidden" name="role" value={u.role} />}
                   </FormDialog>
                   <FormDialog
-                    title={`Atur ulang kata sandi ${u.name}`}
+                    title={`Atur ulang kata sandi ${u.displayName}`}
                     description="Semua perangkat akun ini akan dikeluarkan."
                     trigger={<KeyRound size={16} />}
                     triggerLabel="Atur ulang kata sandi"
@@ -187,7 +187,7 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
                     <>
                       <ConfirmButton
                         action={toggleActive.bind(null, u.id)}
-                        title={u.isActive ? `Nonaktifkan ${u.name}?` : `Aktifkan ${u.name}?`}
+                        title={u.isActive ? `Nonaktifkan ${u.displayName}?` : `Aktifkan ${u.displayName}?`}
                         description={
                           u.isActive
                             ? "Akun tidak bisa masuk dan langsung dikeluarkan dari semua perangkat. Data tetap tersimpan."
@@ -202,7 +202,7 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
                       </ConfirmButton>
                       <ConfirmButton
                         action={deleteUser.bind(null, u.id)}
-                        title={`Hapus akun ${u.name}?`}
+                        title={`Hapus akun ${u.displayName}?`}
                         description="Obrolan & komentarnya dihapus. Pengumuman, materi, dan foto yang pernah diunggah dialihkan ke akunmu. Tidak bisa dibatalkan — pertimbangkan menonaktifkan saja."
                         confirmLabel="Hapus permanen"
                         ariaLabel="Hapus"

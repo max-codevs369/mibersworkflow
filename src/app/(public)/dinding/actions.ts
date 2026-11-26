@@ -96,7 +96,7 @@ export async function submitNote(_prev: NoteFormState, formData: FormData): Prom
       pinStyle: pins[Math.floor(Math.random() * pins.length)],
       rotation: Math.round((Math.random() * 6 - 3) * 10) / 10,
       authorId: session?.user.id ?? null,
-      authorName: anonymous ? "Anonim" : session?.user.name ?? "Anonim",
+      authorName: anonymous ? "Anonim" : session?.user.displayName ?? "Anonim",
       authorKind: kind,
       isAnonymous: anonymous,
       status,

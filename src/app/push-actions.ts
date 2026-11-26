@@ -49,7 +49,7 @@ export async function sendTestPush(): Promise<{ ok?: true; error?: string }> {
   if (!n) return { error: "Belum ada perangkat yang aktif. Aktifkan notifikasi dulu." };
   await pushToUsers([session.user.id], {
     title: "🔔 Tes notifikasi",
-    body: `Mantap, ${session.user.name.split(" ")[0]}! Notifikasi sudah aktif di perangkat ini.`,
+    body: `Mantap, ${session.user.displayName}! Notifikasi sudah aktif di perangkat ini.`,
     url: "/akun/notifikasi",
     tag: "test",
   });

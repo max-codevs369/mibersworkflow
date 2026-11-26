@@ -33,3 +33,8 @@ export function whatsappUrl(phone?: string | null) {
   else if (d.startsWith("8")) d = `62${d}`;
   return d.length >= 9 && d.length <= 15 ? `https://wa.me/${d}` : null;
 }
+
+export function shortName(fullName: string) {
+  const words = fullName.trim().split(/\s+/).filter(Boolean);
+  return words.find((w) => w.length > 1 && !w.endsWith(".")) ?? words[0] ?? "";
+}

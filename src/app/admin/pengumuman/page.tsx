@@ -18,7 +18,7 @@ type Row = Awaited<ReturnType<typeof load>>[number];
 const load = () =>
   prisma.announcement.findMany({
     orderBy: [{ isPinned: "desc" }, { publishedAt: "desc" }],
-    include: { author: { select: { name: true } } },
+    include: { author: { select: { displayName: true } } },
   });
 
 export default async function AnnouncementsAdminPage({
@@ -91,7 +91,7 @@ export default async function AnnouncementsAdminPage({
                   <p className="mt-1.5 font-semibold leading-snug">{a.title}</p>
                   <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-sm text-muted">
                     <span>{CATEGORY_LABEL[a.category]}</span>·<span>{longDateTime(a.publishedAt)}</span>·
-                    <span>{a.author.name}</span>·
+                    <span>{a.author.displayName}</span>·
                     <span className="inline-flex items-center gap-1">
                       <Eye size={13} /> {a.views}
                     </span>

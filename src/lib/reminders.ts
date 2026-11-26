@@ -81,7 +81,7 @@ async function piketToday(now: Date) {
   if (!d?.duty || !d.person?.userId) return;
   await notifyUser(d.person.userId, {
     type: "piket",
-    message: `Hari ini giliranmu piket kelas, ${d.person.name.split(" ")[0]}. Semangat! 💪`,
+    message: `Hari ini giliranmu piket kelas, ${d.person.name}. Semangat! 💪`,
     link: "/agenda/piket",
   });
 }

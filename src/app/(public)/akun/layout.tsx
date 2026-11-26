@@ -18,10 +18,10 @@ export default async function AccountLayout({ children }: { children: React.Reac
     <section className={cx(container, "max-w-5xl pt-5")}>
       <Breadcrumbs items={[{ label: "Beranda", href: "/" }, { label: "Akun saya" }]} />
       <div className="mt-6 flex items-center gap-4">
-        <Avatar name={session.user.name} src={session.user.image} size={60} />
+        <Avatar name={session.user.displayName} src={session.user.image} size={60} />
         <div className="min-w-0">
           <p className="eyebrow">Akun saya</p>
-          <h1 className="mt-1 truncate text-2xl font-bold sm:text-3xl">{session.user.name}</h1>
+          <h1 className="mt-1 truncate text-2xl font-bold sm:text-3xl">{session.user.displayName}</h1>
           <p className="truncate text-sm text-muted">
             {ROLE_NAME[role] ?? "Anggota"} · {session.user.email}
           </p>

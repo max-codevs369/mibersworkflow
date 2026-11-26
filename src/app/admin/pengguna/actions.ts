@@ -51,7 +51,7 @@ export async function createUser(_prev: ActionState, fd: FormData): Promise<Acti
   const user = await createAccount(r.data);
   await audit(session.user.id, "user.create", "User", user.id);
   refresh();
-  return { ok: true, message: `Akun ${user.name} dibuat.` };
+  return { ok: true, message: `Akun ${user.displayName} dibuat.` };
 }
 
 export async function bulkCreateUsers(_prev: ActionState, fd: FormData): Promise<ActionState> {

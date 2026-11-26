@@ -27,7 +27,7 @@ export default async function SiteNavbar() {
         user={
           session
             ? {
-                name: session.user.name,
+                name: session.user.displayName,
                 image: session.user.image ?? null,
                 role: String(session.user.role ?? "MEMBER"),
               }

@@ -147,7 +147,7 @@ export default function MonthCalendar({
                 <span className="mt-auto hidden items-center gap-1 pt-1 text-[11px] text-muted sm:flex">
                   <Brush size={11} className="flex-none text-brand" />
                   <span className="font-mono tabular-nums text-faint">{d.piket.absenNo}</span>
-                  <span className="truncate">{d.piket.name.split(" ")[0]}</span>
+                  <span className="truncate">{d.piket.name}</span>
                 </span>
               )}
 

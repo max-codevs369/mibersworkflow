@@ -25,21 +25,21 @@ export default async function ObrolanLayout({ children }: { children: React.Reac
             lastReadAt: true,
             deliveredAt: true,
             clearedAt: true,
-            user: { select: { id: true, name: true, image: true } },
+            user: { select: { id: true, displayName: true, image: true } },
           },
         },
         messages: {
           orderBy: { createdAt: "desc" },
           take: 1,
-          select: { content: true, kind: true, deletedAt: true, createdAt: true, senderId: true, sender: { select: { name: true } } },
+          select: { content: true, kind: true, deletedAt: true, createdAt: true, senderId: true, sender: { select: { displayName: true } } },
         },
       },
     }),
     unreadByConversation(me),
     prisma.user.findMany({
       where: { isActive: true, id: { not: me } },
-      orderBy: { name: "asc" },
-      select: { id: true, name: true, image: true, role: true },
+      orderBy: { displayName: "asc" },
+      select: { id: true, displayName: true, image: true, role: true },
     }),
   ]);
 
@@ -68,14 +68,14 @@ export default async function ObrolanLayout({ children }: { children: React.Reac
     return {
       id: c.id,
       type: c.type,
-      title: c.type === "GROUP" ? c.title ?? "Grup" : other?.name ?? "Akun tidak aktif",
+      title: c.type === "GROUP" ? c.title ?? "Grup" : other?.displayName ?? "Akun tidak aktif",
       image: c.type === "GROUP" ? c.imageUrl : other?.image ?? null,
       seed: other?.id ?? c.id,
       at: c.lastMessageAt.toISOString(),
       unread: unread.get(c.id) ?? 0,
       last: m
         ? {
-            name: m.senderId === me ? "Kamu" : m.sender.name.split(" ")[0],
+            name: m.senderId === me ? "Kamu" : m.sender.displayName,
             text: m.deletedAt ? "Pesan ini telah dihapus" : m.content.replace(/\s+/g, " ").slice(0, 120),
             mine: m.senderId === me,
             system: m.kind === "SYSTEM",
@@ -88,7 +88,7 @@ export default async function ObrolanLayout({ children }: { children: React.Reac
 
   const people: Person[] = users.map((u) => ({
     id: u.id,
-    name: u.name,
+    name: u.displayName,
     image: u.image,
     role: ROLE_NAME[u.role as RoleKey] ?? "Anggota",
     chatId: directWith.get(u.id) ?? null,

@@ -24,7 +24,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <AdminShell
       siteName={settings.site_name}
       user={{
-        name: session.user.name,
+        name: session.user.displayName,
         email: session.user.email,
         image: session.user.image ?? null,
         role: String(session.user.role),

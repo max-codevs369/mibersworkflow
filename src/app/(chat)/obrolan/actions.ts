@@ -93,7 +93,7 @@ export async function sendMessage(
       data: { lastReadAt: now },
     }),
   ]);
-  pushChat(conversationId, me, session.user.name, content);
+  pushChat(conversationId, me, session.user.displayName, content);
   revalidatePath("/obrolan", "layout");
   return { ok: true };
 }
@@ -109,7 +109,7 @@ function pushChat(conversationId: string, senderId: string, senderName: string, 
     const text = content.length > 140 ? `${content.slice(0, 140)}…` : content;
     await pushToUsers(targets, {
       title: conv.type === "GROUP" ? `💬 ${conv.title ?? "Grup"}` : `💬 ${senderName}`,
-      body: conv.type === "GROUP" ? `${firstName(senderName)}: ${text}` : text,
+      body: conv.type === "GROUP" ? `${senderName}: ${text}` : text,
       url: `/obrolan/${conversationId}`,
       tag: `chat-${conversationId}`,
     });
@@ -145,7 +145,7 @@ export async function leaveGroup(conversationId: string) {
   const me = session.user.id;
   const m = await membership(conversationId, me);
   if (!m || m.conversation.type !== "GROUP") return { error: "Grup tidak ditemukan." };
-  await systemMessage(conversationId, me, `${session.user.name} keluar dari grup`);
+  await systemMessage(conversationId, me, `${session.user.displayName} keluar dari grup`);
   await prisma.conversationMember.delete({ where: { id: m.id } });
 
   const conv = await prisma.conversation.findUnique({
@@ -163,10 +163,10 @@ export async function leaveGroup(conversationId: string) {
     const heir = await prisma.conversationMember.findFirst({
       where: { conversationId },
       orderBy: { joinedAt: "asc" },
-      select: { userId: true, user: { select: { name: true } } },
+      select: { userId: true, user: { select: { displayName: true } } },
     });
     await prisma.conversation.update({ where: { id: conversationId }, data: { createdBy: heir?.userId ?? null } });
-    if (heir) await systemMessage(conversationId, heir.userId, `${heir.user.name} sekarang menjadi pengelola grup`);
+    if (heir) await systemMessage(conversationId, heir.userId, `${heir.user.displayName} sekarang menjadi pengelola grup`);
   }
 
   revalidatePath("/obrolan", "layout");
@@ -174,7 +174,6 @@ export async function leaveGroup(conversationId: string) {
   redirect("/obrolan");
 }
 
-const firstName = (n: string) => n.split(" ")[0];
 const listNames = (names: string[]) =>
   names.length <= 1 ? names.join("") : `${names.slice(0, -1).join(", ")} dan ${names[names.length - 1]}`;
 
@@ -202,7 +201,7 @@ export async function createGroupChat(fd: FormData): Promise<{ error?: string } 
 
   const ids = [...new Set((Array.isArray(memberIds) ? memberIds : []).map(String))].filter((id) => id !== me).slice(0, 300);
   if (!ids.length) return { error: "Pilih minimal satu anggota." };
-  const users = await prisma.user.findMany({ where: { id: { in: ids }, isActive: true }, select: { id: true, name: true } });
+  const users = await prisma.user.findMany({ where: { id: { in: ids }, isActive: true }, select: { id: true, displayName: true } });
   if (!users.length) return { error: "Anggota yang dipilih tidak ditemukan." };
 
   const recent = await prisma.conversation.count({
@@ -227,11 +226,11 @@ export async function createGroupChat(fd: FormData): Promise<{ error?: string } 
     },
     select: { id: true },
   });
-  await systemMessage(conv.id, me, `${session.user.name} membuat grup “${name}”`);
-  await systemMessage(conv.id, me, `${session.user.name} menambahkan ${listNames(users.map((u) => firstName(u.name)))}`);
+  await systemMessage(conv.id, me, `${session.user.displayName} membuat grup “${name}”`);
+  await systemMessage(conv.id, me, `${session.user.displayName} menambahkan ${listNames(users.map((u) => u.displayName))}`);
   await notifyUsers(
     users.map((u) => u.id),
-    { type: "group", message: `${session.user.name} menambahkanmu ke grup “${name}”`, link: `/obrolan/${conv.id}` }
+    { type: "group", message: `${session.user.displayName} menambahkanmu ke grup “${name}”`, link: `/obrolan/${conv.id}` }
   );
   revalidatePath("/obrolan", "layout");
   revalidatePath("/admin/obrolan");
@@ -244,17 +243,17 @@ export async function addGroupMembers(conversationId: string, memberIds: string[
   const existing = new Set(r.conv.members.map((m) => m.userId));
   const ids = [...new Set((Array.isArray(memberIds) ? memberIds : []).map(String))].filter((id) => !existing.has(id)).slice(0, 300);
   if (!ids.length) return { error: "Tidak ada anggota baru yang dipilih." };
-  const users = await prisma.user.findMany({ where: { id: { in: ids }, isActive: true }, select: { id: true, name: true } });
+  const users = await prisma.user.findMany({ where: { id: { in: ids }, isActive: true }, select: { id: true, displayName: true } });
   if (!users.length) return { error: "Anggota tidak ditemukan." };
 
   await prisma.conversationMember.createMany({
     data: users.map((u) => ({ conversationId, userId: u.id })),
     skipDuplicates: true,
   });
-  await systemMessage(conversationId, r.session.user.id, `${r.session.user.name} menambahkan ${listNames(users.map((u) => firstName(u.name)))}`);
+  await systemMessage(conversationId, r.session.user.id, `${r.session.user.displayName} menambahkan ${listNames(users.map((u) => u.displayName))}`);
   await notifyUsers(
     users.map((u) => u.id),
-    { type: "group", message: `${r.session.user.name} menambahkanmu ke grup “${r.conv.title ?? "Grup"}”`, link: `/obrolan/${conversationId}` }
+    { type: "group", message: `${r.session.user.displayName} menambahkanmu ke grup “${r.conv.title ?? "Grup"}”`, link: `/obrolan/${conversationId}` }
   );
   revalidatePath("/obrolan", "layout");
   revalidatePath("/admin/obrolan");
@@ -269,20 +268,20 @@ export async function removeGroupMember(conversationId: string, userId: string):
 
   const target = await prisma.conversationMember.findUnique({
     where: { conversationId_userId: { conversationId, userId } },
-    select: { id: true, user: { select: { name: true } } },
+    select: { id: true, user: { select: { displayName: true } } },
   });
   if (!target) return { error: "Orang itu sudah tidak ada di grup." };
   await prisma.conversationMember.delete({ where: { id: target.id } });
-  await systemMessage(conversationId, r.session.user.id, `${r.session.user.name} mengeluarkan ${firstName(target.user.name)}`);
+  await systemMessage(conversationId, r.session.user.id, `${r.session.user.displayName} mengeluarkan ${target.user.displayName}`);
   await notifyUser(userId, { type: "group", message: `Kamu dikeluarkan dari grup “${r.conv.title ?? "Grup"}”`, link: "/obrolan" });
   if (userId === r.conv.createdBy) {
     const heir = await prisma.conversationMember.findFirst({
       where: { conversationId },
       orderBy: { joinedAt: "asc" },
-      select: { userId: true, user: { select: { name: true } } },
+      select: { userId: true, user: { select: { displayName: true } } },
     });
     await prisma.conversation.update({ where: { id: conversationId }, data: { createdBy: heir?.userId ?? null } });
-    if (heir) await systemMessage(conversationId, heir.userId, `${heir.user.name} sekarang menjadi pengelola grup`);
+    if (heir) await systemMessage(conversationId, heir.userId, `${heir.user.displayName} sekarang menjadi pengelola grup`);
   }
   revalidatePath("/obrolan", "layout");
   revalidatePath("/admin/obrolan");
@@ -298,7 +297,7 @@ export async function renameGroup(conversationId: string, title: string, descrip
   if (await wordFilter(`${name} ${desc}`)) return { error: "Nama atau deskripsi mengandung kata yang tidak diperbolehkan." };
 
   await prisma.conversation.update({ where: { id: conversationId }, data: { title: name, description: desc || null } });
-  if (name !== r.conv.title) await systemMessage(conversationId, r.session.user.id, `${r.session.user.name} mengubah nama grup menjadi “${name}”`);
+  if (name !== r.conv.title) await systemMessage(conversationId, r.session.user.id, `${r.session.user.displayName} mengubah nama grup menjadi “${name}”`);
   revalidatePath("/obrolan", "layout");
   revalidatePath("/admin/obrolan");
   return { ok: true };
@@ -326,12 +325,12 @@ export async function updateGroupPhoto(conversationId: string, fd: FormData): Pr
     if ("error" in up) return { error: up.error };
     await prisma.conversation.update({ where: { id: conversationId }, data: { imageUrl: up.url } });
     await deleteUpload(current?.imageUrl ?? null);
-    await systemMessage(conversationId, r.session.user.id, `${r.session.user.name} mengubah foto grup`);
+    await systemMessage(conversationId, r.session.user.id, `${r.session.user.displayName} mengubah foto grup`);
   } else if (fd.get("remove")) {
     if (!current?.imageUrl) return { ok: true };
     await prisma.conversation.update({ where: { id: conversationId }, data: { imageUrl: null } });
     await deleteUpload(current.imageUrl);
-    await systemMessage(conversationId, r.session.user.id, `${r.session.user.name} menghapus foto grup`);
+    await systemMessage(conversationId, r.session.user.id, `${r.session.user.displayName} menghapus foto grup`);
   } else {
     return { error: "Pilih foto dulu." };
   }

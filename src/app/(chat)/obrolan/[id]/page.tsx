@@ -12,10 +12,10 @@ const LIMIT = 300;
 async function loadTitle(id: string, me: string) {
   const c = await prisma.conversation.findFirst({
     where: { id, members: { some: { userId: me } } },
-    select: { type: true, title: true, members: { select: { user: { select: { id: true, name: true } } } } },
+    select: { type: true, title: true, members: { select: { user: { select: { id: true, displayName: true } } } } },
   });
   if (!c) return null;
-  return c.type === "GROUP" ? c.title ?? "Grup" : c.members.find((m) => m.user.id !== me)?.user.name ?? "Obrolan";
+  return c.type === "GROUP" ? c.title ?? "Grup" : c.members.find((m) => m.user.id !== me)?.user.displayName ?? "Obrolan";
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -56,7 +56,7 @@ export default async function ChatRoomPage({ params }: { params: Promise<{ id: s
         select: {
           lastReadAt: true,
           deliveredAt: true,
-          user: { select: { id: true, name: true, image: true, role: true, isActive: true } },
+          user: { select: { id: true, displayName: true, image: true, role: true, isActive: true } },
         },
       },
       messages: {
@@ -69,9 +69,9 @@ export default async function ChatRoomPage({ params }: { params: Promise<{ id: s
           content: true,
           createdAt: true,
           deletedAt: true,
-          sender: { select: { id: true, name: true, image: true } },
+          sender: { select: { id: true, displayName: true, image: true } },
           replyTo: {
-            select: { id: true, content: true, deletedAt: true, sender: { select: { id: true, name: true } } },
+            select: { id: true, content: true, deletedAt: true, sender: { select: { id: true, displayName: true } } },
           },
         },
       },
@@ -95,17 +95,17 @@ export default async function ChatRoomPage({ params }: { params: Promise<{ id: s
     ? (
         await prisma.user.findMany({
           where: { isActive: true, id: { notIn: [...memberIds] } },
-          orderBy: { name: "asc" },
-          select: { id: true, name: true, image: true, role: true },
+          orderBy: { displayName: "asc" },
+          select: { id: true, displayName: true, image: true, role: true },
         })
-      ).map((u) => ({ id: u.id, name: u.name, image: u.image, role: ROLE_NAME[u.role as RoleKey] ?? "Anggota" }))
+      ).map((u) => ({ id: u.id, name: u.displayName, image: u.image, role: ROLE_NAME[u.role as RoleKey] ?? "Anggota" }))
     : [];
 
   const messages = conv.messages.reverse().map((m) => ({
     id: m.id,
     kind: m.kind,
     authorId: m.sender.id,
-    name: m.sender.name,
+    name: m.sender.displayName,
     image: m.sender.image,
     text: m.content,
     at: m.createdAt.toISOString(),
@@ -114,7 +114,7 @@ export default async function ChatRoomPage({ params }: { params: Promise<{ id: s
       ? {
           id: m.replyTo.id,
           authorId: m.replyTo.sender.id,
-          name: m.replyTo.sender.name,
+          name: m.replyTo.sender.displayName,
           text: m.replyTo.deletedAt ? "" : m.replyTo.content.slice(0, 300),
           deleted: !!m.replyTo.deletedAt,
         }
@@ -128,7 +128,7 @@ export default async function ChatRoomPage({ params }: { params: Promise<{ id: s
           
         id: conv.id,
         group,
-        title: group ? conv.title ?? "Grup" : other?.name ?? "Akun tidak aktif",
+        title: group ? conv.title ?? "Grup" : other?.displayName ?? "Akun tidak aktif",
         description: conv.description,
         image: group ? conv.imageUrl : other?.image ?? null,
         seed: other?.id ?? conv.id,
@@ -137,7 +137,7 @@ export default async function ChatRoomPage({ params }: { params: Promise<{ id: s
       }}
       members={conv.members.map((m) => ({
         id: m.user.id,
-        name: m.user.name,
+        name: m.user.displayName,
         image: m.user.image,
         role: ROLE_NAME[m.user.role as RoleKey] ?? "Anggota",
       }))}
@@ -145,7 +145,7 @@ export default async function ChatRoomPage({ params }: { params: Promise<{ id: s
       truncated={conv._count.messages > LIMIT}
       readUpTo={readUpTo}
       deliveredUpTo={deliveredUpTo}
-      me={{ id: me.id, name: me.name, image: me.image ?? null }}
+      me={{ id: me.id, name: me.displayName, image: me.image ?? null }}
       moderator={group && isAdminRole(me.role)}
       creatorId={group ? conv.createdBy : null}
       canManage={canManage}

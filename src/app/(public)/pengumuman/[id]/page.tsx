@@ -23,7 +23,7 @@ type Params = { params: Promise<{ id: string }> };
 async function getAnnouncement(id: string) {
   return prisma.announcement.findFirst({
     where: { id, status: "PUBLISHED", publishedAt: { lte: new Date() } },
-    include: { author: { select: { name: true, image: true } } },
+    include: { author: { select: { displayName: true, image: true } } },
   });
 }
 
@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       url,
       publishedTime: a.publishedAt.toISOString(),
       modifiedTime: a.updatedAt.toISOString(),
-      authors: [a.author.name],
+      authors: [a.author.displayName],
       ...(a.coverUrl ? { images: [a.coverUrl] } : {}),
     },
     twitter: { card: "summary_large_image", title: a.title, description, ...(a.coverUrl ? { images: [a.coverUrl] } : {}) },
@@ -78,7 +78,7 @@ export default async function AnnouncementDetailPage({ params }: Params) {
     datePublished: a.publishedAt.toISOString(),
     dateModified: a.updatedAt.toISOString(),
     mainEntityOfPage: absoluteUrl(`/pengumuman/${a.id}`),
-    author: { "@type": "Person", name: a.author.name },
+    author: { "@type": "Person", name: a.author.displayName },
     publisher: { "@type": "Organization", name: settings.site_name, logo: { "@type": "ImageObject", url: absoluteUrl("/icon-512.png") } },
     image: [absoluteUrl(a.coverUrl ?? "/opengraph-image")],
   };
@@ -118,9 +118,9 @@ export default async function AnnouncementDetailPage({ params }: Params) {
 
       <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 border-y border-line py-4 text-sm text-muted">
         <span className="flex items-center gap-2.5">
-          <Avatar name={a.author.name} src={a.author.image} size={32} />
+          <Avatar name={a.author.displayName} src={a.author.image} size={32} />
           <span>
-            <span className="block font-semibold text-fg">{a.author.name}</span>
+            <span className="block font-semibold text-fg">{a.author.displayName}</span>
             <span className="block text-xs">{longDateTime(a.publishedAt)}</span>
           </span>
         </span>

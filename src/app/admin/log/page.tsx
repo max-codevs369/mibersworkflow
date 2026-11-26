@@ -19,7 +19,7 @@ export default async function AuditLogPage({ searchParams }: { searchParams: Pro
       orderBy: { createdAt: "desc" },
       skip: (page - 1) * PER_PAGE,
       take: PER_PAGE,
-      include: { user: { select: { name: true, image: true } } },
+      include: { user: { select: { displayName: true, image: true } } },
     }),
   ]);
   const pages = Math.max(1, Math.ceil(total / PER_PAGE));
@@ -33,10 +33,10 @@ export default async function AuditLogPage({ searchParams }: { searchParams: Pro
         <div className={cx(card, "divide-y divide-line")}>
           {logs.map((l) => (
             <div key={l.id} className="flex items-start gap-3 px-4 py-3">
-              <Avatar name={l.user?.name ?? "Sistem"} src={l.user?.image} size={32} />
+              <Avatar name={l.user?.displayName ?? "Sistem"} src={l.user?.image} size={32} />
               <div className="min-w-0 flex-1 text-sm">
                 <p>
-                  <span className="font-semibold">{l.user?.name ?? "Akun terhapus"}</span>{" "}
+                  <span className="font-semibold">{l.user?.displayName ?? "Akun terhapus"}</span>{" "}
                   <span className="text-muted">{AUDIT_LABEL[l.action] ?? l.action}</span>
                 </p>
                 <p className="truncate font-mono text-[11px] text-faint">

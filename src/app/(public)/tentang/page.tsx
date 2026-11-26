@@ -38,12 +38,12 @@ export default async function AboutPage() {
     prisma.aboutSection.findMany({ where: { isVisible: true }, orderBy: [{ sortOrder: "asc" }, { id: "asc" }] }),
     prisma.user.findMany({
       where: memberWhere,
-      orderBy: { name: "asc" },
+      orderBy: { displayName: "asc" },
       select: {
         id: true,
-        name: true,
+        displayName: true,
         image: true,
-        profile: { select: { nickname: true, instagram: true, position: true, birthday: true } },
+        profile: { select: { instagram: true, position: true, birthday: true } },
       },
     }),
   ]);
@@ -122,9 +122,9 @@ export default async function AboutPage() {
                     today ? "border-brand/60 bg-brand/10" : "border-line bg-surface"
                   )}
                 >
-                  <Avatar name={u.name} src={u.image} size={32} />
+                  <Avatar name={u.displayName} src={u.image} size={32} />
                   <span className="min-w-0">
-                    <span className="block truncate text-sm font-medium leading-tight">{u.profile?.nickname || u.name}</span>
+                    <span className="block truncate text-sm font-medium leading-tight">{u.displayName}</span>
                     <span className="flex items-center gap-1 font-mono text-[11px] text-muted">
                       <Cake size={11} className="text-brand" />
                       {today ? "hari ini" : `${dayIn(u.profile!.birthday!)} ${BULAN[month - 1]}`}
@@ -150,13 +150,13 @@ export default async function AboutPage() {
                   key={u.id}
                   className="group relative flex min-w-0 items-center gap-3 rounded-xl border border-line bg-surface px-3 py-3 transition hover:-translate-y-0.5 hover:border-line-strong hover:bg-surface-2"
                 >
-                  <Avatar name={u.name} src={u.image} size={42} />
+                  <Avatar name={u.displayName} src={u.image} size={42} />
                   <div className="min-w-0 flex-1">
                     <Link href={`/anggota/${u.id}`} className="block truncate font-medium leading-tight after:absolute after:inset-0 after:rounded-xl group-hover:text-brand">
-                      {u.name}
+                      {u.displayName}
                     </Link>
                     <p className="truncate text-xs text-muted">
-                      {[u.profile?.nickname && `“${u.profile.nickname}”`, u.profile?.position].filter(Boolean).join(" · ") || "Anggota"}
+                      {u.profile?.position || "Anggota"}
                     </p>
                   </div>
                   {ig && (
