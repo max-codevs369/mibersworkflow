@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "ConversationMember" ADD COLUMN     "clearedAt" TIMESTAMP(3),
+ADD COLUMN     "deliveredAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
