@@ -107,7 +107,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ path
           "Content-Length": String(thumbSize),
           "Cache-Control": access === "public" ? "public, max-age=31536000, immutable" : "private, max-age=86400",
           "X-Content-Type-Options": "nosniff",
-          "Cross-Origin-Resource-Policy": "same-origin",
+          "Cross-Origin-Resource-Policy": "same-site",
           "Content-Security-Policy": "default-src 'none'; sandbox",
         },
       });
@@ -120,7 +120,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ path
     "Content-Type": type,
     "Cache-Control": access === "public" ? "public, max-age=31536000, immutable" : "private, max-age=3600",
     "X-Content-Type-Options": "nosniff",
-    "Cross-Origin-Resource-Policy": "same-origin",
+    "Cross-Origin-Resource-Policy": type.startsWith("image/") ? "same-site" : "same-origin",
     "Accept-Ranges": "bytes",
     "Content-Disposition": inline ? "inline" : `attachment; filename="materi.${ext}"`,
   };

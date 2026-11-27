@@ -24,6 +24,7 @@ import {
   StickyNote,
   UserRound,
   X,
+  Wallet,
 } from "lucide-react";
 import { disablePushHere } from "@/lib/push-client";
 import { isAdminRole, ROLE_NAME, type RoleKey } from "@/lib/roles";
@@ -360,6 +361,13 @@ export default function Navbar({
                     <div className="my-1 h-px bg-line" />
                     <MenuLink href="/akun" icon={<UserRound size={17} />} label="Akun saya" />
                     <MenuLink href="/akun/notifikasi" icon={<Bell size={17} />} label="Notifikasi" />
+                    <a
+                      href="/kas"
+                      className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm text-muted transition hover:bg-surface-2 hover:text-fg"
+                    >
+                      <Wallet size={17} />
+                      Kas kelas
+                    </a>
                     {admin && <MenuLink href="/admin" icon={<LayoutDashboard size={17} />} label="Panel pengurus" />}
                     <div className="my-1 h-px bg-line" />
                     <button
@@ -475,6 +483,10 @@ export default function Navbar({
               {user ? (
                 <>
                   <MobileLink href="/akun" icon={<UserRound size={18} />} label="Akun saya" />
+                  <a href="/kas" className="flex min-h-12 items-center gap-3 rounded-lg px-3 text-muted hover:bg-surface-2 hover:text-fg">
+                    <Wallet size={18} />
+                    Kas kelas
+                  </a>
                   {admin && <MobileLink href="/admin" icon={<LayoutDashboard size={18} />} label="Panel pengurus" />}
                   <button
                     type="button"

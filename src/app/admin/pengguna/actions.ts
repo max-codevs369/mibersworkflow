@@ -177,16 +177,24 @@ export async function deleteUser(id: string) {
   }
 
   const me = session.user.id;
-  await prisma.$transaction([
-    prisma.announcement.updateMany({ where: { authorId: id }, data: { authorId: me } }),
-    prisma.material.updateMany({ where: { uploadedBy: id }, data: { uploadedBy: me } }),
-    prisma.album.updateMany({ where: { createdBy: id }, data: { createdBy: me } }),
-    prisma.media.updateMany({ where: { uploadedBy: id }, data: { uploadedBy: me } }),
-    prisma.comment.deleteMany({ where: { authorId: id } }),
-    prisma.post.deleteMany({ where: { authorId: id } }),
-    prisma.organizationMember.updateMany({ where: { userId: id }, data: { userId: null } }),
-    prisma.user.delete({ where: { id } }),
-  ]);
+  try {
+    await prisma.$transaction([
+      prisma.announcement.updateMany({ where: { authorId: id }, data: { authorId: me } }),
+      prisma.material.updateMany({ where: { uploadedBy: id }, data: { uploadedBy: me } }),
+      prisma.album.updateMany({ where: { createdBy: id }, data: { createdBy: me } }),
+      prisma.media.updateMany({ where: { uploadedBy: id }, data: { uploadedBy: me } }),
+      prisma.comment.deleteMany({ where: { authorId: id } }),
+      prisma.post.deleteMany({ where: { authorId: id } }),
+      prisma.organizationMember.updateMany({ where: { userId: id }, data: { userId: null } }),
+      prisma.user.delete({ where: { id } }),
+    ]);
+  } catch (e) {
+    const err = e as { code?: string; message?: string };
+    if (err.code === "P2003" || /foreign key/i.test(err.message ?? "")) {
+      return { error: "Akun ini punya catatan kas kelas atau data lain, jadi tidak bisa dihapus. Nonaktifkan saja akunnya." };
+    }
+    throw e;
+  }
   await deleteUpload(u.image);
   await audit(me, "user.delete", "User", id);
   refresh();
