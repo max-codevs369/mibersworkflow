@@ -13,6 +13,7 @@ const TITLE: Record<string, string> = {
   moderation: "🛡️ Perlu dicek",
   media: "🖼️ Galeri",
   note: "📌 Dinding catatan",
+  finance: "💰 Kas kelas",
 };
 
 const titleOf = (p: Payload) => p.title ?? TITLE[p.type] ?? "Mibers Duo Anam";
