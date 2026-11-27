@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ImageOff } from "lucide-react";
 import { cx } from "@/lib/ui";
+import { thumbUrl } from "@/lib/thumb";
 
 export default function SafeImg({
   src,
@@ -10,12 +11,14 @@ export default function SafeImg({
   className,
   fallback,
   eager = false,
+  width,
 }: {
   src?: string | null;
   alt: string;
   className?: string;
   fallback?: React.ReactNode;
   eager?: boolean;
+  width?: number;
 }) {
   const [failed, setFailed] = useState<string | null>(null);
 
@@ -32,11 +35,16 @@ export default function SafeImg({
     );
   }
 
+  const one = width ? thumbUrl(src, width) : src;
+  const two = width ? thumbUrl(src, width * 2) : src;
+
   return (
     <img
-      src={src}
+      src={one}
+      srcSet={one !== two ? `${one} 1x, ${two} 2x` : undefined}
       alt={alt}
       loading={eager ? "eager" : "lazy"}
+      fetchPriority={eager ? "high" : undefined}
       decoding="async"
       onError={() => setFailed(src)}
       className={className}

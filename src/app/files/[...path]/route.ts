@@ -1,13 +1,43 @@
 import { createReadStream } from "fs";
-import { stat } from "fs/promises";
+import { mkdir, rename, stat } from "fs/promises";
 import path from "path";
 import { Readable } from "stream";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { isAdminRole } from "@/lib/roles";
-import { UPLOAD_ROOT, FOLDERS, MIME_BY_EXT } from "@/lib/upload";
+import { UPLOAD_ROOT, FOLDERS, MIME_BY_EXT, THUMB_DIR } from "@/lib/upload";
+import { THUMB_WIDTHS } from "@/lib/thumb";
 
 const NAME = /^[a-f0-9-]{36}\.([a-z0-9]{2,5})$/;
+
+const pending = new Map<string, Promise<boolean>>();
+
+function makeThumb(src: string, out: string, width: number) {
+  let job = pending.get(out);
+  if (!job) {
+    job = (async () => {
+      try {
+        const { default: sharp } = await import("sharp");
+        await mkdir(path.dirname(out), { recursive: true });
+        const tmp = `${out}.${process.pid}.tmp`;
+        await sharp(src, { limitInputPixels: 80_000_000 })
+          .rotate()
+          .resize({ width, withoutEnlargement: true })
+          .webp({ quality: 74, effort: 4 })
+          .toFile(tmp);
+        await rename(tmp, out);
+        return true;
+      } catch (e) {
+        console.error("[thumb]", e instanceof Error ? e.message : e);
+        return false;
+      } finally {
+        pending.delete(out);
+      }
+    })();
+    pending.set(out, job);
+  }
+  return job;
+}
 
 const notFound = () => new Response("Tidak ditemukan", { status: 404, headers: { "Cache-Control": "no-store" } });
 
@@ -60,6 +90,28 @@ export async function GET(request: Request, { params }: { params: Promise<{ path
       !!session &&
       (access === "member" || isAdminRole(session.user.role) || (uploader !== undefined && uploader === session.user.id));
     if (!allowed) return notFound();
+  }
+
+  const w = Number(new URL(request.url).searchParams.get("w"));
+  if (folder === "images" && ext !== "gif" && (THUMB_WIDTHS as readonly number[]).includes(w)) {
+    const thumbPath = path.join(THUMB_DIR, String(w), file.replace(/\.[a-z0-9]+$/, ".webp"));
+    let thumbSize = await stat(thumbPath).then((s) => s.size).catch(() => 0);
+    if (!thumbSize && (await makeThumb(filePath, thumbPath, w))) {
+      thumbSize = await stat(thumbPath).then((s) => s.size).catch(() => 0);
+    }
+    if (thumbSize) {
+      const body = Readable.toWeb(createReadStream(thumbPath)) as ReadableStream<Uint8Array>;
+      return new Response(body, {
+        headers: {
+          "Content-Type": "image/webp",
+          "Content-Length": String(thumbSize),
+          "Cache-Control": access === "public" ? "public, max-age=31536000, immutable" : "private, max-age=86400",
+          "X-Content-Type-Options": "nosniff",
+          "Cross-Origin-Resource-Policy": "same-origin",
+          "Content-Security-Policy": "default-src 'none'; sandbox",
+        },
+      });
+    }
   }
 
   const type = MIME_BY_EXT[ext] ?? "application/octet-stream";

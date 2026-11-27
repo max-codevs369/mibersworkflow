@@ -9,6 +9,7 @@ import { Check, Field, TextArea, TextInput } from "@/components/ui/Fields";
 import { EmptyState } from "@/components/ui/bits";
 import { badge, btn, card, cx } from "@/lib/ui";
 import { createAbout, deleteAbout, moveAbout, updateAbout } from "./actions";
+import { thumbUrl } from "@/lib/thumb";
 
 export const metadata = { title: "Tentang Kelas" };
 
@@ -79,7 +80,7 @@ export default async function AdminAboutPage() {
                 </ConfirmButton>
               </div>
               {s.imageUrl && (
-                <img src={s.imageUrl} alt="" className="hidden h-20 w-28 flex-none rounded-lg object-cover sm:block" />
+                <img src={thumbUrl(s.imageUrl, 224)} alt="" className="hidden h-20 w-28 flex-none rounded-lg object-cover sm:block" />
               )}
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">

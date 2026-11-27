@@ -14,7 +14,7 @@ export default function GroupAvatar({ id, title, size = 48, src }: { id: string;
   if (!src) return initials;
   return (
     <span className="block flex-none overflow-hidden rounded-full bg-wa-panel" style={{ width: size, height: size }}>
-      <SafeImg src={src} alt="" className="h-full w-full object-cover" fallback={initials} />
+      <SafeImg src={src} alt="" width={size} className="h-full w-full object-cover" fallback={initials} />
     </span>
   );
 }

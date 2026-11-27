@@ -1,6 +1,7 @@
 import * as webpush from "web-push";
 import { after } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { thumbUrl } from "@/lib/thumb";
 
 let configured: boolean | null = null;
 
@@ -18,7 +19,14 @@ function ready() {
 
 export const pushPublicKey = () => process.env.VAPID_PUBLIC_KEY || null;
 
-export type PushPayload = { title: string; body: string; url?: string | null; tag?: string };
+export type PushPayload = {
+  title: string;
+  body: string;
+  url?: string | null;
+  tag?: string;
+  icon?: string | null;
+  chat?: { id: string; line: string };
+};
 
 export async function pushToUsers(userIds: string[], p: PushPayload) {
   try {
@@ -33,6 +41,9 @@ export async function pushToUsers(userIds: string[], p: PushPayload) {
       body: p.body.slice(0, 300),
       url: p.url && p.url.startsWith("/") ? p.url : "/akun/notifikasi",
       tag: p.tag,
+      icon: p.icon && p.icon.startsWith("/files/images/") ? thumbUrl(p.icon, 192) : null,
+      chat: p.chat ? { id: p.chat.id, line: p.chat.line.slice(0, 300) } : null,
+      ts: Date.now(),
     });
     const dead: string[] = [];
     const alive: string[] = [];

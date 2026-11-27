@@ -32,6 +32,7 @@ ln -sfn "$APP/env" "$APP/app/.env"
 rm -rf "$APP/app/storage"
 grep -q '^UPLOAD_DIR=' "$APP/env" || echo "UPLOAD_DIR=\"$APP/storage/uploads\"" >> "$APP/env"
 chown -R mibers:mibers "$APP/app" "$APP/storage"
+chmod 755 "$APP/app"
 
 STAMP="$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$APP/backup"

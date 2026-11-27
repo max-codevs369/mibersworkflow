@@ -58,7 +58,7 @@ if ($LASTEXITCODE -ne 0) { throw "Tidak bisa terhubung ke server lewat SSH." }
 
 $files = @($archive, "$PSScriptRoot\update.sh")
 if ($FirstTime) {
-    $files += @("$PSScriptRoot\setup-server.sh", "$PSScriptRoot\nginx.conf", "$PSScriptRoot\mibers.service")
+    $files += @("$PSScriptRoot\setup-server.sh", "$PSScriptRoot\nginx.conf", "$PSScriptRoot\nginx-locations.conf", "$PSScriptRoot\nginx-brotli.conf", "$PSScriptRoot\mibers.service")
 }
 Write-Host "Mengunggah ke server..."
 & scp @sshOpts @files "${target}:~/mibers-deploy/"

@@ -117,7 +117,7 @@ export default async function AnnouncementsPage({
               >
                 {a.coverUrl ? (
                   <div className="h-16 w-16 flex-none overflow-hidden rounded-lg border border-line bg-surface-3 sm:h-20 sm:w-28">
-                    <SafeImg src={a.coverUrl} alt="" className="h-full w-full object-cover" />
+                    <SafeImg src={a.coverUrl} alt="" width={112} className="h-full w-full object-cover" />
                   </div>
                 ) : (
                   <div className="flex h-16 w-16 flex-none flex-col items-center justify-center rounded-lg bg-surface-3 sm:h-20">

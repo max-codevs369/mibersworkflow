@@ -13,6 +13,7 @@ import { EmptyState } from "@/components/ui/bits";
 import { badge, btn, card, cx } from "@/lib/ui";
 import AlbumFields from "../album-fields";
 import { deleteAlbum, deleteMedia, reviewMedia, setCover, toggleFeatured, updateAlbum, updateCaption, uploadMedia } from "../actions";
+import { thumbUrl } from "@/lib/thumb";
 
 export const metadata = { title: "Kelola Album" };
 
@@ -106,7 +107,7 @@ export default async function AdminAlbumPage({ params }: { params: Promise<{ id:
                           <Play size={28} />
                         </span>
                       ) : (
-                        <img src={m.url} alt="" loading="lazy" className="h-full w-full object-cover" />
+                        <img src={thumbUrl(m.url, 384)} alt="" loading="lazy" className="h-full w-full object-cover" />
                       )}
                       <span className="absolute left-1.5 top-1.5 flex gap-1">
                         {m.status === "PENDING" && <span className={cx(badge, "bg-brand text-ink")}>MENUNGGU</span>}

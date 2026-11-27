@@ -52,7 +52,7 @@ function Frame({ photo, className, eager }: { photo?: Photo; className: string; 
     <div className={`relative overflow-hidden rounded-xl border border-line bg-surface-2 ${className}`}>
       {photo ? (
         <>
-          <SafeImg src={photo.url} alt={photo.caption} eager={eager} className="h-full w-full object-cover" fallback={empty} />
+          <SafeImg src={photo.url} alt={photo.caption} width={640} eager={eager} className="h-full w-full object-cover" fallback={empty} />
           {photo.caption && (
             <span className="absolute bottom-2 left-2 right-2 truncate rounded-md bg-ink/80 px-2 py-1 font-mono text-[11px] text-fg/90">
               {photo.caption}

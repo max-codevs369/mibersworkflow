@@ -23,7 +23,6 @@ import {
   ArrowUpRight,
   Clock,
 } from "lucide-react";
-import { authClient } from "@/lib/auth-client";
 import { disablePushHere } from "@/lib/push-client";
 import { Avatar } from "@/components/ui/bits";
 import { ROLE_NAME, isSuperRole, type RoleKey } from "@/lib/roles";
@@ -102,6 +101,7 @@ export default function AdminShell({
 
   async function logout() {
     await disablePushHere();
+    const { authClient } = await import("@/lib/auth-client");
     await authClient.signOut();
     router.push("/login");
     router.refresh();

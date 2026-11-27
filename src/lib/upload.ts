@@ -2,10 +2,13 @@ import { mkdir, writeFile, unlink } from "fs/promises";
 import path from "path";
 import { randomUUID } from "crypto";
 import { MB, MEDIA_LIMITS } from "@/lib/media-limits";
+import { THUMB_WIDTHS } from "@/lib/thumb";
 
 export const UPLOAD_ROOT = process.env.UPLOAD_DIR
   ? path.resolve(process.env.UPLOAD_DIR)
   : path.join(process.cwd(), "storage", "uploads");
+
+export const THUMB_DIR = path.join(UPLOAD_ROOT, ".thumbs");
 
 export const FOLDERS = ["images", "videos", "docs"] as const;
 export type Folder = (typeof FOLDERS)[number];
@@ -141,4 +144,7 @@ export async function deleteUpload(url?: string | null) {
     await unlink(path.join(UPLOAD_ROOT, m[1], m[2]));
   } catch {
   }
+  if (m[1] !== "images") return;
+  const thumb = m[2].replace(/\.[a-z0-9]+$/, ".webp");
+  await Promise.all(THUMB_WIDTHS.map((w) => unlink(path.join(THUMB_DIR, String(w), thumb)).catch(() => {})));
 }

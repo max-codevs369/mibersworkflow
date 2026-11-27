@@ -97,7 +97,7 @@ export default async function AboutPage() {
                   </div>
                   {s.imageUrl && (
                     <div className="aspect-[4/3] overflow-hidden rounded-xl border border-line bg-surface-2">
-                      <SafeImg src={s.imageUrl} alt={s.title} className="h-full w-full object-cover" />
+                      <SafeImg src={s.imageUrl} alt={s.title} width={640} className="h-full w-full object-cover" />
                     </div>
                   )}
                 </article>

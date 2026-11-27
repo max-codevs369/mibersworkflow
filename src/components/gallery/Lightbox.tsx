@@ -70,6 +70,7 @@ export default function Lightbox({ items }: { items: GalleryItem[] }) {
               <SafeImg
                 src={m.url}
                 alt={m.caption ?? ""}
+                width={384}
                 eager={i < 8}
                 className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
                 fallback={<span className="flex h-full w-full items-center justify-center bg-surface-3 text-xs text-faint">File tidak ditemukan</span>}

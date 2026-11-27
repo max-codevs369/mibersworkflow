@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/ui/bits";
 import { relativeTime } from "@/lib/format";
 import { btn, card, cx } from "@/lib/ui";
 import { approveAllMedia, reviewMedia } from "../actions";
+import { thumbUrl } from "@/lib/thumb";
 
 export const metadata = { title: "Moderasi Foto" };
 
@@ -54,7 +55,7 @@ export default async function MediaModerationPage() {
                     <Play size={28} />
                   </span>
                 ) : (
-                  <img src={m.url} alt="" loading="lazy" className="h-full w-full object-cover" />
+                  <img src={thumbUrl(m.url, 384)} alt="" loading="lazy" className="h-full w-full object-cover" />
                 )}
               </a>
               <figcaption className="p-3">

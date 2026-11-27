@@ -102,16 +102,27 @@ function pushChat(conversationId: string, senderId: string, senderName: string, 
   inBackground(async () => {
     const conv = await prisma.conversation.findUnique({
       where: { id: conversationId },
-      select: { type: true, title: true, members: { where: { userId: { not: senderId } }, select: { userId: true } } },
+      select: {
+        type: true,
+        title: true,
+        imageUrl: true,
+        members: { where: { userId: { not: senderId } }, select: { userId: true } },
+      },
     });
     if (!conv) return;
     const targets = conv.members.map((m) => m.userId).filter((id) => !isViewingRoom(id, conversationId));
+    if (targets.length === 0) return;
+    const sender = await prisma.user.findUnique({ where: { id: senderId }, select: { image: true } });
     const text = content.length > 140 ? `${content.slice(0, 140)}…` : content;
+    const group = conv.type === "GROUP";
+    const line = group ? `${senderName}: ${text}` : text;
     await pushToUsers(targets, {
-      title: conv.type === "GROUP" ? `💬 ${conv.title ?? "Grup"}` : `💬 ${senderName}`,
-      body: conv.type === "GROUP" ? `${senderName}: ${text}` : text,
+      title: group ? conv.title ?? "Grup" : senderName,
+      body: line,
       url: `/obrolan/${conversationId}`,
       tag: `chat-${conversationId}`,
+      icon: group ? conv.imageUrl ?? sender?.image : sender?.image,
+      chat: { id: conversationId, line },
     });
   });
 }

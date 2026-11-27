@@ -12,6 +12,7 @@ import { badge, btn, card, cx } from "@/lib/ui";
 import { FEATURED_MAX } from "@/lib/labels";
 import AlbumFields from "./album-fields";
 import { createAlbum, toggleFeatured } from "./actions";
+import { thumbUrl } from "@/lib/thumb";
 
 export const metadata = { title: "Galeri" };
 
@@ -81,7 +82,7 @@ export default async function AdminGalleryPage() {
           {Array.from({ length: FEATURED_MAX }, (_, i) => featured[i]).map((f, i) =>
             f ? (
               <figure key={f.id} className="relative overflow-hidden rounded-lg border border-line bg-surface-2">
-                <img src={f.url} alt={f.caption ?? ""} className="aspect-[4/3] w-full object-cover" />
+                <img src={thumbUrl(f.url, 640)} alt={f.caption ?? ""} className="aspect-[4/3] w-full object-cover" />
                 <figcaption className="truncate px-2.5 py-2 text-xs text-muted">
                   <Link href={`/admin/galeri/${f.album.id}`} className="hover:text-brand">
                     {f.album.title}
@@ -126,7 +127,7 @@ export default async function AdminGalleryPage() {
               >
                 <div className="relative aspect-[4/3] bg-surface-2">
                   {cover ? (
-                    <img src={cover} alt="" loading="lazy" className="h-full w-full object-cover" />
+                    <img src={thumbUrl(cover, 384)} alt="" loading="lazy" className="h-full w-full object-cover" />
                   ) : (
                     <div className="flex h-full items-center justify-center text-faint">
                       <Images size={28} />

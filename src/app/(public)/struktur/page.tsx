@@ -112,6 +112,7 @@ function Photo({ m, name, className }: { m: Member | null; name: string; classNa
         <SafeImg
           src={m.photoUrl || m.user?.image}
           alt={name}
+          width={320}
           className="h-full w-full object-cover"
           fallback={
             <span className="flex h-full w-full items-center justify-center text-3xl font-bold text-faint">{name.charAt(0).toUpperCase()}</span>

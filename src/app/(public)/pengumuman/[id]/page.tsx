@@ -131,7 +131,7 @@ export default async function AnnouncementDetailPage({ params }: Params) {
 
       {a.coverUrl && (
         <div className="mt-8 overflow-hidden rounded-xl border border-line bg-surface-2">
-          <SafeImg src={a.coverUrl} alt={a.title} eager className="max-h-[560px] w-full object-cover" />
+          <SafeImg src={a.coverUrl} alt={a.title} width={960} eager className="max-h-[560px] w-full object-cover" />
         </div>
       )}
 

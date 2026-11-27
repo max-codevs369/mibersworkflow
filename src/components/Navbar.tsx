@@ -25,7 +25,6 @@ import {
   UserRound,
   X,
 } from "lucide-react";
-import { authClient } from "@/lib/auth-client";
 import { disablePushHere } from "@/lib/push-client";
 import { isAdminRole, ROLE_NAME, type RoleKey } from "@/lib/roles";
 import { Avatar, InstagramIcon } from "@/components/ui/bits";
@@ -190,6 +189,7 @@ export default function Navbar({
     setUserMenu(false);
     setDrawer(false);
     await disablePushHere();
+    const { authClient } = await import("@/lib/auth-client");
     await authClient.signOut();
     router.push("/");
     router.refresh();

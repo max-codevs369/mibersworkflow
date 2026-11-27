@@ -109,6 +109,7 @@ export default async function GalleryPage({
                         <SafeImg
                           src={cover}
                           alt={a.title}
+                          width={640}
                           className="h-full w-full object-cover"
                           fallback={
                             <span className="flex h-full items-center justify-center text-faint">
@@ -119,7 +120,7 @@ export default async function GalleryPage({
                       </div>
                       {thumbs.map((t) => (
                         <div key={t.url} className={cx("bg-surface-2", thumbs.length === 1 && "row-span-2")}>
-                          <SafeImg src={t.url} alt="" className="h-full w-full object-cover" />
+                          <SafeImg src={t.url} alt="" width={240} className="h-full w-full object-cover" />
                         </div>
                       ))}
                     </div>

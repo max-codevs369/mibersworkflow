@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { ThemeProvider, type ThemeMode } from "@/components/ThemeProvider";
 import ScrollKeeper from "@/components/ScrollKeeper";
 import PushManager from "@/components/PushManager";
+import InAppNotice from "@/components/InAppNotice";
 import { getSettings } from "@/lib/settings";
 import { getSession } from "@/lib/session";
 import { pushPublicKey } from "@/lib/push";
@@ -89,6 +90,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <ScrollKeeper />
         <ThemeProvider initial={theme}>{children}</ThemeProvider>
         {session && <PushManager publicKey={pushPublicKey()} />}
+        {session && <InAppNotice />}
       </body>
     </html>
   );

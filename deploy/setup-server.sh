@@ -63,6 +63,10 @@ if command -v ufw >/dev/null && ufw status | grep -q "Status: active"; then
   ufw allow 443/tcp
 fi
 
+install -m 644 "$(dirname "$0")/nginx-locations.conf" /etc/nginx/snippets/mibers-locations.conf
+if apt-get install -y libnginx-mod-http-brotli-filter libnginx-mod-http-brotli-static; then
+  install -m 644 "$(dirname "$0")/nginx-brotli.conf" /etc/nginx/conf.d/mibers-brotli.conf
+fi
 sed "s/__DOMAIN__/$DOMAIN/g" "$(dirname "$0")/nginx.conf" > /etc/nginx/sites-available/mibers
 ln -sf /etc/nginx/sites-available/mibers /etc/nginx/sites-enabled/mibers
 rm -f /etc/nginx/sites-enabled/default

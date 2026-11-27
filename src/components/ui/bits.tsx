@@ -34,7 +34,7 @@ export function Avatar({
         className
       )}
     >
-      {src ? <SafeImg src={src} alt={name} className="h-full w-full object-cover" fallback={fallback} /> : fallback}
+      {src ? <SafeImg src={src} alt={name} width={size} className="h-full w-full object-cover" fallback={fallback} /> : fallback}
     </span>
   );
 }

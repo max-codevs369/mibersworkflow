@@ -331,7 +331,7 @@ export default async function MemberProfilePage({ params }: Params) {
                   i === 0 && photos.length > 2 && "col-span-2 row-span-2"
                 )}
               >
-                <SafeImg src={ph.url} alt={ph.caption ?? ph.album.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]" />
+                <SafeImg src={ph.url} alt={ph.caption ?? ph.album.title} width={480} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]" />
                 <span className="absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-ink/90 to-transparent px-3 pb-2 pt-8 text-xs text-fg opacity-0 transition group-hover:opacity-100">
                   {ph.album.title}
                 </span>

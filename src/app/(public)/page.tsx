@@ -467,7 +467,7 @@ for (const teman of kelas.anggota) {
                   <p className="prose-safe mt-3 whitespace-pre-line text-lg leading-[1.8] text-fg sm:text-xl">{lead.content}</p>
                   {lead.imageUrl && (
                     <div className="mt-6 aspect-[16/8] overflow-hidden rounded-xl border border-line">
-                      <SafeImg src={lead.imageUrl} alt={lead.title} className="h-full w-full object-cover" />
+                      <SafeImg src={lead.imageUrl} alt={lead.title} width={960} className="h-full w-full object-cover" />
                     </div>
                   )}
                 </Reveal>
@@ -483,7 +483,7 @@ for (const teman of kelas.anggota) {
                         >
                           {s.imageUrl && (
                             <div className={cx("aspect-video md:aspect-auto", i % 2 === 1 && "md:order-2")}>
-                              <SafeImg src={s.imageUrl} alt={s.title} className="h-full w-full object-cover" />
+                              <SafeImg src={s.imageUrl} alt={s.title} width={640} className="h-full w-full object-cover" />
                             </div>
                           )}
                           <div className="p-5 sm:p-6">
@@ -517,7 +517,7 @@ for (const teman of kelas.anggota) {
               >
                 {featured.coverUrl && (
                   <>
-                    <SafeImg src={featured.coverUrl} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30 transition duration-700 group-hover:scale-[1.04] group-hover:opacity-40" />
+                    <SafeImg src={featured.coverUrl} alt="" width={960} className="absolute inset-0 h-full w-full object-cover opacity-30 transition duration-700 group-hover:scale-[1.04] group-hover:opacity-40" />
                     <span className="absolute inset-0 bg-gradient-to-t from-surface via-surface/85 to-surface/30" />
                   </>
                 )}
@@ -761,6 +761,7 @@ for (const teman of kelas.anggota) {
                       <SafeImg
                         src={a.coverUrl || a.media[0]?.url}
                         alt={a.title}
+                        width={360}
                         className="h-full w-full object-cover saturate-[0.85] transition duration-500 group-hover:scale-[1.05] group-hover:saturate-100"
                         fallback={
                           <span className="flex h-full items-center justify-center text-faint">
