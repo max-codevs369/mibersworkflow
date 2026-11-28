@@ -3,30 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { X } from "lucide-react";
+import { armSound, playSound } from "@/lib/sound";
 
 type Notice = { key: number; title: string; body: string; url: string; icon: string };
-
-function ding() {
-  try {
-    const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    const ctx = new Ctx();
-    const now = ctx.currentTime;
-    [880, 1320].forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "sine";
-      osc.frequency.value = freq;
-      const t = now + i * 0.11;
-      gain.gain.setValueAtTime(0.0001, t);
-      gain.gain.exponentialRampToValueAtTime(0.18, t + 0.015);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
-      osc.connect(gain).connect(ctx.destination);
-      osc.start(t);
-      osc.stop(t + 0.18);
-    });
-    setTimeout(() => ctx.close().catch(() => {}), 600);
-  } catch {}
-}
 
 export default function InAppNotice() {
   const router = useRouter();
@@ -35,6 +14,7 @@ export default function InAppNotice() {
   const seq = useRef(0);
 
   useEffect(() => {
+    armSound();
     if (!("serviceWorker" in navigator)) return;
     const onMessage = (e: MessageEvent) => {
       const d = e.data;
@@ -47,7 +27,7 @@ export default function InAppNotice() {
         icon: typeof d.icon === "string" && d.icon.startsWith("/") ? d.icon : "/icon.png",
       };
       setItems((list) => [n, ...list].slice(0, 3));
-      ding();
+      playSound(d.kind === "message" ? "message" : "notice");
       setTimeout(() => setItems((list) => list.filter((x) => x.key !== n.key)), 5500);
     };
     navigator.serviceWorker.addEventListener("message", onMessage);

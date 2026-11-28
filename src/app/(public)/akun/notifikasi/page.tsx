@@ -9,6 +9,7 @@ import { btn, cx } from "@/lib/ui";
 import { clearRead, markAllRead } from "../actions";
 import NotificationLink from "./notification-link";
 import PushSettings from "@/components/PushSettings";
+import SoundSettings from "@/components/SoundSettings";
 import { pushPublicKey } from "@/lib/push";
 
 export const metadata = { title: "Notifikasi", robots: { index: false, follow: false } };
@@ -29,6 +30,7 @@ export default async function NotificationsPage() {
   return (
     <div>
       <PushSettings publicKey={pushPublicKey()} devices={devices} />
+      <SoundSettings />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted">
           {unread ? `${unread} belum dibaca` : "Semua sudah dibaca"} · {items.length} notifikasi

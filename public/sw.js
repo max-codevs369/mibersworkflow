@@ -27,7 +27,7 @@ self.addEventListener("push", (event) => {
       const wins = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
       const active = wins.find((w) => w.focused && w.visibilityState === "visible");
       if (active) {
-        active.postMessage({ type: "m26-notice", title, body: data.body || "", url, icon });
+        active.postMessage({ type: "m26-notice", kind: chat ? "message" : "notice", title, body: data.body || "", url, icon });
         return;
       }
 
@@ -49,6 +49,8 @@ self.addEventListener("push", (event) => {
         badge: BADGE,
         tag,
         renotify: Boolean(tag),
+        silent: false,
+        requireInteraction: false,
         timestamp: Number(data.ts) || Date.now(),
         vibrate: [180, 80, 180],
         data: { url, chatId: chat ? chat.id : null, lines, count },
