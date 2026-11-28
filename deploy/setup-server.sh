@@ -64,6 +64,8 @@ if command -v ufw >/dev/null && ufw status | grep -q "Status: active"; then
 fi
 
 install -m 644 "$(dirname "$0")/nginx-locations.conf" /etc/nginx/snippets/mibers-locations.conf
+install -m 644 "$(dirname "$0")/nginx-default.conf" /etc/nginx/sites-available/00-default
+ln -sf /etc/nginx/sites-available/00-default /etc/nginx/sites-enabled/00-default
 if apt-get install -y libnginx-mod-http-brotli-filter libnginx-mod-http-brotli-static; then
   install -m 644 "$(dirname "$0")/nginx-brotli.conf" /etc/nginx/conf.d/mibers-brotli.conf
 fi

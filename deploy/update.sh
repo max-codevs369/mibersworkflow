@@ -3,6 +3,7 @@ set -euo pipefail
 
 APP=/opt/mibers
 IN="$APP/incoming"
+CFG="$(cd "$(dirname "$0")" && pwd)"
 DOMAIN="$(cat "$APP/.domain")"
 EMAIL="$(cat "$APP/.email")"
 as_app() { runuser -u mibers -- env HOME="$APP" "$@"; }
@@ -57,6 +58,7 @@ chmod 700 "$APP/backup"
 
 if [ "$(sudo -u postgres psql -d mibers -tAc "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public'")" != "0" ]; then
   sudo -u postgres pg_dump -Fc mibers > "$APP/backup/before-update-$STAMP.dump"
+  ls -t "$APP"/backup/before-update-*.dump 2>/dev/null | tail -n +16 | xargs -r rm -f
 fi
 
 cd "$APP/app"
@@ -70,6 +72,23 @@ if [ "$USERS" = "0" ]; then
 fi
 
 as_app npm run build
+install -d -o mibers -g mibers -m 755 "$APP/static"
+rsync -a "$APP/app/.next/static/" "$APP/static/"
+find "$APP/static" -type f -mtime +14 -delete
+find "$APP/static" -mindepth 1 -type d -empty -delete
+chown -R mibers:mibers "$APP/static"
+if [ -f "$CFG/nginx-locations.conf" ]; then
+  install -m 644 "$CFG/nginx-locations.conf" /etc/nginx/snippets/mibers-locations.conf
+fi
+if [ -f "$CFG/nginx-default.conf" ]; then
+  install -m 644 "$CFG/nginx-default.conf" /etc/nginx/sites-available/00-default
+  ln -sf /etc/nginx/sites-available/00-default /etc/nginx/sites-enabled/00-default
+fi
+if [ -f "$CFG/mibers.service" ] && ! cmp -s "$CFG/mibers.service" /etc/systemd/system/mibers.service; then
+  install -m 644 "$CFG/mibers.service" /etc/systemd/system/mibers.service
+  systemctl daemon-reload
+fi
+nginx -t && systemctl reload nginx
 systemctl restart mibers
 
 if [ ! -d "/etc/letsencrypt/live/$DOMAIN" ]; then

@@ -56,9 +56,9 @@ Write-Host ("Ukuran arsip: {0:N1} MB" -f ((Get-Item $archive).Length / 1MB))
 & ssh @sshOpts $target "mkdir -p ~/mibers-deploy"
 if ($LASTEXITCODE -ne 0) { throw "Tidak bisa terhubung ke server lewat SSH." }
 
-$files = @($archive, "$PSScriptRoot\update.sh")
+$files = @($archive, "$PSScriptRoot\update.sh", "$PSScriptRoot\nginx-locations.conf", "$PSScriptRoot\nginx-default.conf", "$PSScriptRoot\mibers.service")
 if ($FirstTime) {
-    $files += @("$PSScriptRoot\setup-server.sh", "$PSScriptRoot\nginx.conf", "$PSScriptRoot\nginx-locations.conf", "$PSScriptRoot\nginx-brotli.conf", "$PSScriptRoot\mibers.service")
+    $files += @("$PSScriptRoot\setup-server.sh", "$PSScriptRoot\nginx.conf", "$PSScriptRoot\nginx-brotli.conf")
 }
 Write-Host "Mengunggah ke server..."
 & scp @sshOpts @files "${target}:~/mibers-deploy/"
@@ -96,7 +96,7 @@ if ($WithData) {
 $remote = @(
     "set -e",
     "cd ~/mibers-deploy",
-    "sed -i 's/\r$//' *.sh",
+    "sed -i 's/\r$//' *.sh *.conf *.service",
     $(if ($FirstTime) { "sudo bash setup-server.sh '$Domain' '$Email'" } else { "true" }),
     "sudo mkdir -p /opt/mibers/incoming",
     "sudo mv mibers-release.tar.gz /opt/mibers/incoming/release.tar.gz",
