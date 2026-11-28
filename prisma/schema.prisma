@@ -569,3 +569,13 @@ model RosterEntry {
 
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 }
+
+model NotificationSound {
+  kind      String   @id
+  data      Bytes
+  mime      String   @default("audio/wav")
+  size      Int
+  duration  Float
+  updatedBy String?
+  updatedAt DateTime @updatedAt
+}

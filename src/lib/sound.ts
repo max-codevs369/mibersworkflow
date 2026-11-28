@@ -1,10 +1,11 @@
 "use client";
 
-export type SoundKind = "message" | "notice";
-
 const KEY = "m26-sound";
 let ctx: AudioContext | null = null;
 let armed = false;
+let manifest: { at: number; kinds: Record<string, number> } | null = null;
+let manifestLoad: Promise<Record<string, number>> | null = null;
+const buffers = new Map<string, Promise<AudioBuffer | null>>();
 
 function context(): AudioContext | null {
   if (typeof window === "undefined") return null;
@@ -47,6 +48,42 @@ export function armSound() {
   window.addEventListener("touchend", unlock, { passive: true });
 }
 
+export function refreshSounds() {
+  manifest = null;
+  manifestLoad = null;
+  buffers.clear();
+}
+
+async function customKinds(): Promise<Record<string, number>> {
+  if (manifest && Date.now() - manifest.at < 5 * 60_000) return manifest.kinds;
+  manifestLoad ??= fetch("/api/sounds", { cache: "no-store" })
+    .then((r) => (r.ok ? r.json() : { kinds: {} }))
+    .then((j: { kinds?: Record<string, number> }) => {
+      manifest = { at: Date.now(), kinds: j.kinds ?? {} };
+      return manifest.kinds;
+    })
+    .catch(() => ({}))
+    .finally(() => {
+      manifestLoad = null;
+    });
+  return manifestLoad;
+}
+
+function loadBuffer(c: AudioContext, url: string): Promise<AudioBuffer | null> {
+  let hit = buffers.get(url);
+  if (!hit) {
+    hit = fetch(url)
+      .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject()))
+      .then((b) => c.decodeAudioData(b))
+      .catch(() => {
+        buffers.delete(url);
+        return null;
+      });
+    buffers.set(url, hit);
+  }
+  return hit;
+}
+
 function tone(c: AudioContext, at: number, freq: number, to: number, length: number, peak: number) {
   const osc = c.createOscillator();
   const gain = c.createGain();
@@ -61,21 +98,53 @@ function tone(c: AudioContext, at: number, freq: number, to: number, length: num
   osc.stop(at + length + 0.02);
 }
 
-export async function playSound(kind: SoundKind = "notice", force = false) {
-  if (!force && !soundEnabled()) return;
+function builtIn(c: AudioContext, kind: string) {
+  const t = c.currentTime + 0.01;
+  if (kind === "chat") {
+    tone(c, t, 740, 980, 0.12, 0.16);
+    tone(c, t + 0.1, 1180, 1480, 0.16, 0.13);
+  } else {
+    tone(c, t, 660, 660, 0.22, 0.12);
+    tone(c, t + 0.13, 880, 880, 0.22, 0.12);
+    tone(c, t + 0.26, 1320, 1320, 0.32, 0.1);
+  }
+}
+
+async function ready(): Promise<AudioContext | null> {
   const c = context();
-  if (!c) return;
+  if (!c) return null;
+  if (c.state === "suspended") await c.resume().catch(() => {});
+  return c.state === "running" ? c : null;
+}
+
+export function playBuffer(c: AudioContext, buffer: AudioBuffer) {
+  const src = c.createBufferSource();
+  src.buffer = buffer;
+  src.connect(c.destination);
+  src.start();
+}
+
+export async function playSound(kind: string = "notice", force = false) {
+  if (!force && !soundEnabled()) return;
   try {
-    if (c.state === "suspended") await c.resume();
-    if (c.state !== "running") return;
-    const t = c.currentTime + 0.01;
-    if (kind === "message") {
-      tone(c, t, 740, 980, 0.12, 0.16);
-      tone(c, t + 0.1, 1180, 1480, 0.16, 0.13);
-    } else {
-      tone(c, t, 660, 660, 0.22, 0.12);
-      tone(c, t + 0.13, 880, 880, 0.22, 0.12);
-      tone(c, t + 0.26, 1320, 1320, 0.32, 0.1);
+    const c = await ready();
+    if (!c) return;
+    const version = (await customKinds())[kind];
+    if (version) {
+      const buffer = await loadBuffer(c, `/api/sounds/${kind}?v=${version}`);
+      if (buffer) return playBuffer(c, buffer);
     }
+    builtIn(c, kind);
   } catch {}
+}
+
+export async function playBlob(blob: Blob) {
+  const c = await ready();
+  if (!c) return;
+  const buffer = await c.decodeAudioData(await blob.arrayBuffer());
+  playBuffer(c, buffer);
+}
+
+export function audioContext() {
+  return context();
 }

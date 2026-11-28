@@ -27,7 +27,7 @@ export default function InAppNotice() {
         icon: typeof d.icon === "string" && d.icon.startsWith("/") ? d.icon : "/icon.png",
       };
       setItems((list) => [n, ...list].slice(0, 3));
-      playSound(d.kind === "message" ? "message" : "notice");
+      playSound(typeof d.kind === "string" ? d.kind : "notice");
       setTimeout(() => setItems((list) => list.filter((x) => x.key !== n.key)), 5500);
     };
     navigator.serviceWorker.addEventListener("message", onMessage);

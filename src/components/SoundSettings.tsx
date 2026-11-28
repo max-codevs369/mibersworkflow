@@ -35,7 +35,7 @@ export default function SoundSettings() {
         <button type="button" onClick={() => playSound("notice", true)} className={btn.sm}>
           Coba notifikasi
         </button>
-        <button type="button" onClick={() => playSound("message", true)} className={btn.sm}>
+        <button type="button" onClick={() => playSound("chat", true)} className={btn.sm}>
           Coba pesan
         </button>
         <button

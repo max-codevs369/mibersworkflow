@@ -26,6 +26,7 @@ export type PushPayload = {
   tag?: string;
   icon?: string | null;
   chat?: { id: string; line: string };
+  kind?: string;
 };
 
 export async function pushToUsers(userIds: string[], p: PushPayload) {
@@ -43,6 +44,7 @@ export async function pushToUsers(userIds: string[], p: PushPayload) {
       tag: p.tag,
       icon: p.icon && p.icon.startsWith("/files/images/") ? thumbUrl(p.icon, 192) : null,
       chat: p.chat ? { id: p.chat.id, line: p.chat.line.slice(0, 300) } : null,
+      kind: p.chat ? "chat" : p.kind && /^[a-z]{1,20}$/.test(p.kind) ? p.kind : null,
       ts: Date.now(),
     });
     const dead: string[] = [];

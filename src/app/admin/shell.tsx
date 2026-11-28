@@ -22,6 +22,7 @@ import {
   X,
   ArrowUpRight,
   Clock,
+  AudioLines,
 } from "lucide-react";
 import { disablePushHere } from "@/lib/push-client";
 import { Avatar } from "@/components/ui/bits";
@@ -60,6 +61,7 @@ const GROUPS: { title: string; superOnly?: boolean; items: Item[] }[] = [
     items: [
       { href: "/admin/pengguna", label: "Pengguna", icon: <Users size={18} /> },
       { href: "/admin/pengaturan", label: "Pengaturan situs", icon: <Settings size={18} /> },
+      { href: "/admin/suara", label: "Suara notifikasi", icon: <AudioLines size={18} /> },
       { href: "/admin/log", label: "Log aktivitas", icon: <ScrollText size={18} /> },
     ],
   },

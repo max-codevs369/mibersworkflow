@@ -21,7 +21,7 @@ const titleOf = (p: Payload) => p.title ?? TITLE[p.type] ?? "Mibers Duo Anam";
 function pushLater(userIds: string[], p: Payload) {
   if (userIds.length === 0) return;
   inBackground(() =>
-    pushToUsers(userIds, { title: titleOf(p), body: p.message, url: p.link ?? "/akun/notifikasi", tag: `${p.type}-${p.link ?? ""}` })
+    pushToUsers(userIds, { title: titleOf(p), body: p.message, url: p.link ?? "/akun/notifikasi", tag: `${p.type}-${p.link ?? ""}`, kind: p.type })
   );
 }
 

@@ -27,7 +27,7 @@ self.addEventListener("push", (event) => {
       const wins = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
       const active = wins.find((w) => w.focused && w.visibilityState === "visible");
       if (active) {
-        active.postMessage({ type: "m26-notice", kind: chat ? "message" : "notice", title, body: data.body || "", url, icon });
+        active.postMessage({ type: "m26-notice", kind: chat ? "chat" : typeof data.kind === "string" ? data.kind : "notice", title, body: data.body || "", url, icon });
         return;
       }
 
