@@ -24,9 +24,6 @@ import { memberWhere } from "@/lib/members";
 import { clockNow, dayMonth, dayOf, daysUntil, monthOf, relativeTime, shortDate, weekdayName } from "@/lib/format";
 import { btn, cx } from "@/lib/ui";
 import { absoluteUrl, jsonLd, siteUrl } from "@/lib/seo";
-import { memo } from "@/lib/memo";
-
-const TTL = 30_000;
 
 export const dynamic = "force-dynamic";
 
@@ -57,24 +54,22 @@ export default async function HomePage() {
     latestMaterials,
     subjects,
   ] = await Promise.all([
-    memo("home:members", TTL, () => prisma.user.count({ where: memberWhere })),
-    memo("home:photos", TTL, () => prisma.media.count({ where: { status: "APPROVED", album: { visibility: "PUBLIC" } } })),
-    memo("home:notes", TTL, () => prisma.note.count({ where: noteVisibleWhere(new Date()) })),
-    memo("home:ann", TTL, () => prisma.announcement.count({ where: publicWhere(new Date()) })),
+    prisma.user.count({ where: memberWhere }),
+    prisma.media.count({ where: { status: "APPROVED", album: { visibility: "PUBLIC" } } }),
+    prisma.note.count({ where: noteVisibleWhere(now) }),
+    prisma.announcement.count({ where: publicWhere(now) }),
     prisma.note.findFirst({ where: { ...noteVisibleWhere(now), type: "DAILY" }, orderBy: { createdAt: "desc" } }),
     prisma.note.findMany({
       where: noteVisibleWhere(now),
       orderBy: [{ isPinned: "desc" }, { createdAt: "desc" }],
       take: 4,
     }),
-    memo("home:hero", TTL, () =>
-      prisma.media.findMany({
-        where: { featuredAt: { not: null }, status: "APPROVED", type: "PHOTO", album: { visibility: "PUBLIC" } },
-        orderBy: { featuredAt: "asc" },
-        take: 3,
-        select: { url: true, caption: true, album: { select: { title: true } } },
-      })
-    ),
+    prisma.media.findMany({
+      where: { featuredAt: { not: null }, status: "APPROVED", type: "PHOTO", album: { visibility: "PUBLIC" } },
+      orderBy: { featuredAt: "asc" },
+      take: 3,
+      select: { url: true, caption: true, album: { select: { title: true } } },
+    }),
     getPiketPlan(dateKey(now), 14),
     prisma.event.findFirst({
       where: { OR: [{ startAt: { gte: now } }, { endAt: { gte: now } }] },
@@ -85,7 +80,7 @@ export default async function HomePage() {
       orderBy: [{ isPinned: "desc" }, { publishedAt: "desc" }],
       take: 4,
     }),
-    memo("home:albums", TTL, () => prisma.album.findMany({
+    prisma.album.findMany({
       where: { visibility: "PUBLIC" },
       orderBy: [{ eventDate: { sort: "desc", nulls: "last" } }, { createdAt: "desc" }],
       take: 5,
@@ -98,16 +93,14 @@ export default async function HomePage() {
         },
         _count: { select: { media: { where: { status: "APPROVED" } } } },
       },
-    })),
-    memo("home:period", TTL, () =>
-      prisma.organizationPeriod.findFirst({
-        where: { isActive: true },
-        select: { name: true, startYear: true, endYear: true, _count: { select: { members: true } } },
-      })
-    ),
-    memo("home:about", TTL, () => prisma.aboutSection.findMany({ where: { isVisible: true }, orderBy: [{ sortOrder: "asc" }, { id: "asc" }] })),
-    memo("home:groups", TTL, () => prisma.conversation.count({ where: { type: "GROUP" } })),
-    memo("home:chatToday", TTL, () => prisma.message.count({ where: { kind: "TEXT", createdAt: { gte: new Date(now.getTime() - 86_400_000) } } })),
+    }),
+    prisma.organizationPeriod.findFirst({
+      where: { isActive: true },
+      select: { name: true, startYear: true, endYear: true, _count: { select: { members: true } } },
+    }),
+    prisma.aboutSection.findMany({ where: { isVisible: true }, orderBy: [{ sortOrder: "asc" }, { id: "asc" }] }),
+    prisma.conversation.count({ where: { type: "GROUP" } }),
+    prisma.message.count({ where: { kind: "TEXT", createdAt: { gte: new Date(now.getTime() - 86_400_000) } } }),
     session
       ? prisma.conversation.findMany({
           where: { members: { some: { userId: session.user.id } } },
@@ -129,7 +122,7 @@ export default async function HomePage() {
         })
       : Promise.resolve([]),
 
-    memo("home:materials", TTL, () => prisma.material.groupBy({ by: ["subject"], _count: { _all: true } })),
+    prisma.material.groupBy({ by: ["subject"], _count: { _all: true } }),
     session
       ? prisma.material.findMany({
           orderBy: { createdAt: "desc" },
