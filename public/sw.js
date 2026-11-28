@@ -14,6 +14,32 @@ function parse(event) {
 
 const localPath = (v, prefix) => (typeof v === "string" && v.startsWith(prefix) ? v : null);
 
+self.addEventListener("fetch", (event) => {
+  const req = event.request;
+  if (req.method !== "POST") return;
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin || url.pathname !== "/bagikan") return;
+  event.respondWith(
+    (async () => {
+      try {
+        const form = await req.formData();
+        const file = form.getAll("file").find((f) => f && typeof f === "object" && f.size > 0);
+        const cache = await caches.open("m26-share");
+        await cache.delete("/bagikan/file");
+        if (file) {
+          await cache.put(
+            "/bagikan/file",
+            new Response(file, {
+              headers: { "content-type": file.type || "application/octet-stream", "x-file-name": encodeURIComponent(file.name || "bukti") },
+            })
+          );
+        }
+      } catch {}
+      return Response.redirect("/bagikan", 303);
+    })()
+  );
+});
+
 self.addEventListener("push", (event) => {
   const data = parse(event);
   const title = data.title || "Mibers Duo Anam";

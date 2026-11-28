@@ -1,4 +1,4 @@
-import { createHmac, timingSafeEqual } from "crypto";
+import { createHash, createHmac, timingSafeEqual } from "crypto";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { notifyAll, notifyUsers } from "@/lib/notify";
@@ -106,6 +106,15 @@ async function announce(body: Record<string, unknown>) {
   return json({ ok: true, announcementId: created.id });
 }
 
+async function takeShare(token: string, userId: string) {
+  if (!/^[A-Za-z0-9_-]{20,100}$/.test(token) || !userId) return json({ error: "Token tidak valid." }, 422);
+  const id = createHash("sha256").update(token).digest("hex");
+  const row = await prisma.sharedProof.findUnique({ where: { id } });
+  if (!row || row.userId !== userId || row.expiresAt < new Date()) return json({ error: "Bukti sudah kedaluwarsa. Bagikan ulang dari aplikasi pembayaran." }, 404);
+  await prisma.sharedProof.delete({ where: { id } });
+  return json({ ok: true, name: row.name, mime: row.mime, data: Buffer.from(row.data).toString("base64") });
+}
+
 export async function POST(request: Request) {
   const raw = await request.text();
   if (raw.length > 20_000 || !verified(raw, request.headers.get("x-finance-signature"))) return json({ error: "unauthorized" }, 401);
@@ -136,6 +145,8 @@ export async function POST(request: Request) {
       }
       case "announce":
         return await announce(body);
+      case "share":
+        return await takeShare(text(body.token, 100), text(body.userId, 64));
       default:
         return json({ error: "unknown action" }, 400);
     }

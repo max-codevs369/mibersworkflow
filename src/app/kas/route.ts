@@ -8,11 +8,14 @@ const financeUrl = () => (process.env.FINANCE_URL || "https://finance.mibersduoa
 
 const noStore = { "Cache-Control": "no-store", "Referrer-Policy": "no-referrer" };
 
+const safeTarget = (v: string | null) => (v && /^\/[A-Za-z0-9\-_/?=&.]{0,200}$/.test(v) && !v.startsWith("//") ? v : null);
+
 export async function GET(request: Request) {
+  const to = safeTarget(new URL(request.url).searchParams.get("to"));
   const session = await getSession();
   if (!session) {
     const login = new URL("/login", request.url);
-    login.searchParams.set("next", "/kas");
+    login.searchParams.set("next", to ? `/kas?to=${encodeURIComponent(to)}` : "/kas");
     return new Response(null, { status: 303, headers: { ...noStore, Location: login.pathname + login.search } });
   }
 
@@ -25,5 +28,5 @@ export async function GET(request: Request) {
     return new Response("Aplikasi kas belum siap. Coba lagi nanti.", { status: 503, headers: { ...noStore, "Content-Type": "text/plain; charset=utf-8" } });
   }
 
-  return new Response(null, { status: 303, headers: { ...noStore, Location: `${financeUrl()}/sso?code=${code}` } });
+  return new Response(null, { status: 303, headers: { ...noStore, Location: `${financeUrl()}/sso?code=${code}${to ? `&to=${encodeURIComponent(to)}` : ""}` } });
 }

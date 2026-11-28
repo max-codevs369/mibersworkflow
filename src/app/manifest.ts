@@ -13,6 +13,16 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     display: "standalone",
     background_color: "#f6f3ee",
     theme_color: "#ff7a1a",
+    share_target: {
+      action: "/bagikan",
+      method: "post",
+      enctype: "multipart/form-data",
+      params: {
+        title: "title",
+        text: "text",
+        files: [{ name: "file", accept: ["image/*", "application/pdf"] }],
+      },
+    },
     icons: [
       { src: "/icon.png", sizes: "192x192", type: "image/png" },
       { src: "/icon-512.png", sizes: "512x512", type: "image/png" },
