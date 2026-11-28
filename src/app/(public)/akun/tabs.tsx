@@ -9,6 +9,7 @@ export default function AccountTabs({ unread, admin }: { unread: number; admin: 
   const tabs = [
     { href: "/akun", label: "Profil" },
     { href: "/akun/notifikasi", label: "Notifikasi", count: unread },
+    { href: "/kas", label: "Kas kelas ↗", external: true },
     ...(admin ? [{ href: "/admin", label: "Panel admin ↗" }] : []),
   ];
 
@@ -16,6 +17,12 @@ export default function AccountTabs({ unread, admin }: { unread: number; admin: 
     <nav className="no-scrollbar mt-8 flex gap-1 overflow-x-auto border-b border-line" aria-label="Menu akun">
       {tabs.map((t) => {
         const active = pathname === t.href;
+        if ("external" in t)
+          return (
+            <a key={t.href} href={t.href} className="relative flex min-h-11 items-center gap-2 whitespace-nowrap px-4 text-sm font-semibold text-muted transition hover:text-fg">
+              {t.label}
+            </a>
+          );
         return (
           <Link
             key={t.href}

@@ -8,6 +8,7 @@ import { toInputDate } from "@/lib/format";
 import { card, cx } from "@/lib/ui";
 import { keyToDate, nextDutyOf } from "@/lib/piket";
 import { changePassword, updateProfile } from "./actions";
+import KasCard from "./kas-card";
 
 export const metadata = { title: "Akun Saya", robots: { index: false, follow: false } };
 
@@ -84,6 +85,7 @@ export default async function AccountPage() {
       </div>
 
       <aside className="grid content-start gap-4">
+        <KasCard userId={session.user.id} />
         <div className={cx(card, "p-5")}>
           <h2 className="text-sm font-bold uppercase tracking-wider text-faint">Jejakmu</h2>
           <dl className="mt-4 grid grid-cols-3 gap-2 text-center">
