@@ -19,7 +19,7 @@ export async function GET(request: Request) {
   const code = randomBytes(32).toString("base64url");
   const hash = createHash("sha256").update(code).digest("hex");
   try {
-    await prisma.$executeRaw`INSERT INTO finance.sso_codes (code_hash, user_id, expires_at) VALUES (${hash}, ${session.user.id}, now() + interval '60 seconds')`;
+    await prisma.$executeRaw`INSERT INTO finance.sso_codes (code_hash, user_id, main_session_id, expires_at) VALUES (${hash}, ${session.user.id}, ${session.session.id}, now() + interval '60 seconds')`;
   } catch (e) {
     console.error("[kas]", e instanceof Error ? e.message : e);
     return new Response("Aplikasi kas belum siap. Coba lagi nanti.", { status: 503, headers: { ...noStore, "Content-Type": "text/plain; charset=utf-8" } });
